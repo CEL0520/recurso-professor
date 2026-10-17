@@ -369,7 +369,7 @@ body:not(.ready) > .top, body:not(.ready) > .layout { display: none }
 <div id="toast" role="status" aria-live="polite"></div>
 <div id="print-root"></div>
 <div id="barra" class="barra" hidden></div>
-<script type="application/json" id="cel-config">{"versao": "1.0.0", "ano": "2026/2027", "chaveId": "1987a8c7", "verificador": "cP9s3sBRajxWyo2u3D1+mFBowHSjijzrrKtkNdMKuhw0GG2rt94=", "dados": "dados.1ee3d4d0c9.bin", "contactos": {"whatsapp": "245955252417", "email": "cel.vf.gb@gmail.com"}, "diasSemLigacao": 30}</script>
+<script type="application/json" id="cel-config">{"versao": "1.0.1", "ano": "2026/2027", "chaveId": "1987a8c7", "verificador": "qcLZH3W8Uhx0E0RSEbQJMfahTh/rYc6BLhrpB5YCuSYpIqnaLA8=", "dados": "dados.1ee3d4d0c9.bin", "contactos": {"whatsapp": "245955252417", "email": "cel.vf.gb@gmail.com"}, "diasSemLigacao": 30}</script>
 <script>/* Gerador mínimo de .docx (Word) no navegador — sem bibliotecas externas.
    Blocos: {t:'h', text, level} · {t:'p', text|runs, align, size, before, after, keep, border}
            {t:'list', items:[text|runs], ordered} · {t:'table', rows, widths, header, borders, minH}
@@ -2273,6 +2273,7 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
     window.__celReg = reg;
     const ve = (w) => { if (!w) return; w.addEventListener('statechange', () => { if (w.state === 'installed' && navigator.serviceWorker.controller) { novaVersao = w; barra(); } }); };
     if (reg.waiting && navigator.serviceWorker.controller) { novaVersao = reg.waiting; barra(); }
+    ve(reg.installing);   // uma versão nova que já se estava a instalar quando a página abriu
     reg.addEventListener('updatefound', () => ve(reg.installing));
     if (navigator.onLine !== false) reg.update().catch(() => {});
   }).catch(() => {});
