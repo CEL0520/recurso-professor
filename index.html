@@ -324,6 +324,57 @@ legend { font-size: 12.5px; font-weight: 700; color: var(--ink-2); padding: 0 4p
 .note-box { font-size: 13px; color: var(--ink-2); background: var(--surface-2); border-radius: var(--r-sm); padding: 8px 10px }
 .more { align-self: center }
 
+/* calendário de atividades: uma linha por atividade, com a cor da categoria na margem (a categoria também vai escrita) */
+.cal-list { display: flex; flex-direction: column; gap: 8px }
+.cal-ev { display: grid; grid-template-columns: 58px minmax(0, 1fr) auto; gap: 12px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-left: 5px solid var(--cal-c, var(--line-2)); border-radius: var(--r-sm); padding: 10px 12px; scroll-margin-top: 90px }
+.cal-ev.passou { opacity: .6 }
+.cal-ev.tri { background: var(--surface-2) }
+.cal-d { display: flex; flex-direction: column; align-items: center; line-height: 1.15; color: var(--ink-2); font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em }
+.cal-d b { font-family: var(--f-display); font-size: 25px; color: var(--ink); letter-spacing: 0; font-weight: 700 }
+.cal-tx > b { display: block; font-weight: 650; line-height: 1.35 }
+.cal-meta { display: flex; flex-wrap: wrap; gap: 3px 12px; font-size: 13px; color: var(--ink-2); margin-top: 3px }
+.cal-cat { display: inline-flex; align-items: center; gap: 6px; font-weight: 650 }
+.cal-cat i { width: 9px; height: 9px; border-radius: 50%; background: var(--cal-c, var(--line-2)); flex: none }
+.cal-q { font-size: 12.5px; font-weight: 700; color: var(--ink-2); white-space: nowrap }
+.cal-q.perto { color: var(--amber-ink); background: var(--amber); border-radius: 999px; padding: 3px 10px }
+.cal-mes h2 { font-size: 19px; margin: 8px 0 10px }
+.g-reuniao { --cal-c: #2F6FED } .g-familias { --cal-c: #1F9D60 } .g-provas { --cal-c: #E0A100 } .g-aida { --cal-c: #9B5BD6 } .g-letiva { --cal-c: #5B7DB8 }
+.g-feriado { --cal-c: #D9344B } .g-ferias { --cal-c: #E8798A } .g-matriculas { --cal-c: #13A3AE } .g-financeiro { --cal-c: #A67C2E } .g-alusiva { --cal-c: #8A95A8 }
+@media (max-width: 560px) { .cal-ev { grid-template-columns: 50px minmax(0, 1fr); gap: 10px } .cal-q { grid-column: 2; justify-self: start } }
+
+/* documentos do CEL */
+.doc { padding: 22px 26px }
+.doc-cap + .doc-cap { margin-top: 26px }
+.doc-cap > h2 { font-size: 21px; display: flex; flex-direction: column; gap: 3px; border-bottom: 2px solid var(--amber); padding-bottom: 7px; margin: 0 0 6px }
+.doc-cap > h2 .n { font-family: var(--f-mono); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); font-weight: 500 }
+.doc-intro { display: flex; flex-direction: column; gap: 10px }
+.doc-art { padding: 12px 0 10px; border-top: 1px solid var(--line); scroll-margin-top: 96px }
+.doc-cap > h2 + .doc-art { border-top: 0 }
+.doc-art h3 { font-size: 16.5px; margin: 0 0 6px; display: flex; flex-wrap: wrap; gap: 2px 10px; align-items: baseline }
+.doc-art h3 span { font-family: var(--f-body); font-weight: 650; color: var(--ink) }
+.doc-art p, .doc-intro p { margin: 6px 0; line-height: 1.55 }
+.doc-art p.al { padding-left: 22px }
+.doc-art ul, .doc-intro ul { margin: 6px 0; padding-left: 22px } .doc-art li { margin: 3px 0; line-height: 1.5 }
+.doc-art h4, .doc-intro h4 { margin: 12px 0 4px; font-size: 15px }
+.doc-art .datatbl, .doc-intro .datatbl { margin: 8px 0 }
+.doc-art .callout { margin: 8px 0 }
+.doc-art.alvo { background: var(--amber-soft); border-radius: var(--r-sm); padding: 12px; border-top-color: transparent }
+.doc-fecho { margin-top: 28px; text-align: center; color: var(--ink-2) } .doc-fecho h3 { margin: 0 0 6px; font-size: 16px } .doc-fecho p { margin: 4px 0 }
+.doc-hit { text-align: left; cursor: pointer; font: inherit; color: inherit; display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline }
+.doc-hit:hover { border-color: var(--line-2) }
+.doc-snip { flex: 1 1 100% }
+@media (max-width: 600px) { .doc { padding: 16px 14px } .doc-art p.al { padding-left: 14px } }
+.doc-art p, .doc-intro p, .doc-art li, .doc .datatbl td { overflow-wrap: anywhere }
+/* quadros com 3 ou mais colunas: no telemóvel, cada linha passa a um bloco «coluna: valor» */
+@media (max-width: 600px) {
+  .doc .datatbl.empilha table, .doc .datatbl.empilha tr, .doc .datatbl.empilha td { display: block; width: 100% }
+  .doc .datatbl.empilha tr:first-child { display: none }
+  .doc .datatbl.empilha tr { border: 1px solid var(--line); border-radius: var(--r-sm); margin-bottom: 8px; padding: 4px 0 }
+  .doc .datatbl.empilha td { border: 0; padding: 4px 10px }
+  .doc .datatbl.empilha td::before { content: attr(data-l); display: block; font-size: 11.5px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: .05em }
+}
+@media (max-width: 400px) { .top .mode { display: none } }
+
 /* entrada: registo, pedido do código, ativação e bloqueio */
 body:not(.ready) > .top, body:not(.ready) > .layout { display: none }
 .gate[hidden] { display: none }
@@ -369,7 +420,7 @@ body:not(.ready) > .top, body:not(.ready) > .layout { display: none }
 <div id="toast" role="status" aria-live="polite"></div>
 <div id="print-root"></div>
 <div id="barra" class="barra" hidden></div>
-<script type="application/json" id="cel-config">{"versao": "1.0.1", "ano": "2026/2027", "chaveId": "1987a8c7", "verificador": "qcLZH3W8Uhx0E0RSEbQJMfahTh/rYc6BLhrpB5YCuSYpIqnaLA8=", "dados": "dados.1ee3d4d0c9.bin", "contactos": {"whatsapp": "245955252417", "email": "cel.vf.gb@gmail.com"}, "diasSemLigacao": 30}</script>
+<script type="application/json" id="cel-config">{"versao": "1.1.0", "ano": "2026/2027", "chaveId": "1987a8c7", "verificador": "73PuRC8oZMHFamSA3GFE+8HePo5bcPrNmyw7cUkiHSE3TL5rshY=", "dados": "dados.2460e27fab.bin", "contactos": {"whatsapp": "245955252417", "email": "cel.vf.gb@gmail.com"}, "diasSemLigacao": 30}</script>
 <script>/* Gerador mínimo de .docx (Word) no navegador — sem bibliotecas externas.
    Blocos: {t:'h', text, level} · {t:'p', text|runs, align, size, before, after, keep, border}
            {t:'list', items:[text|runs], ordered} · {t:'table', rows, widths, header, borders, minH}
@@ -916,7 +967,7 @@ const planable = (it) => it.u || it.f || it.r;
 const VIEWS = [
   { id: 'inicio', label: 'Início' }, { id: 'biblioteca', label: 'Biblioteca' }, { id: 'planos', label: 'Planos de aula' },
   { id: 'provas', label: 'Provas e gabaritos' }, { id: 'banco', label: 'Banco de questões' }, { id: 'ferramentas', label: 'Ferramentas' },
-  { id: 'atualizacoes', label: 'Cópias e atualizações' }
+  { id: 'calendario', label: 'Calendário' }, { id: 'documentos', label: 'Documentos do CEL' }, { id: 'atualizacoes', label: 'Cópias e atualizações' }
 ];
 const main = $('#main');
 function route() {
@@ -982,6 +1033,7 @@ function vInicio() {
     h('section', { class: 'hero' }, bookSvg(), h('div', { class: 'eyebrow' }, 'Jardim de Infância · 1.º ao 4.º ano'), h('h1', null, 'Recursos do Professor'),
       h('p', null, 'Os manuais do CEL num só lugar: estude as unidades e as fichas, prepare planos de aula, faça provas com gabarito e organize o ano letivo. Os documentos descarregam-se em Word, prontos a imprimir.'),
       h('div', { class: 'flagline', 'aria-hidden': 'true' }, h('i'), h('i'), h('i'))),
+    proximasCard(true),
     h('div', { class: 'card stack' }, h('div', { class: 'eyebrow' }, 'Abrir um manual'),
       h('div', { class: 'row' }, h('div', { class: 'grow', style: 'min-width:240px;max-width:520px' }, sel),
         btn('Abrir', { kind: 'primary', icon: 'book', onclick: () => go('biblioteca', `${pick}~intro`) }),
@@ -990,7 +1042,9 @@ function vInicio() {
       tile('Estudar', 'Biblioteca', 'Todas as unidades e fichas, com respostas, notas pedagógicas, glossários e o Dicionário Português–Crioulo.', 'biblioteca'),
       tile('Preparar', 'Planos de aula', 'Escolha a unidade ou a ficha: o plano fica preenchido a partir do manual do professor.', 'planos'),
       tile('Avaliar', 'Provas e gabaritos', 'Provas e fichas com as questões dos manuais, cotação, versões A e B e gabarito.', 'provas'),
-      tile('Organizar', 'Ferramentas', 'Classificações da turma, planificação do ano letivo, números romanos e tabuada.', 'ferramentas')),
+      tile('Organizar', 'Ferramentas', 'Classificações da turma, planificação do ano letivo, números romanos e tabuada.', 'ferramentas'),
+      tile('Consultar', 'Calendário', 'Reuniões, provas, feriados e atividades do ano letivo, com avisos.', 'calendario'),
+      tile('Consultar', 'Documentos do CEL', 'Estatuto, Regulamento Interno, Código de Ética e Plano de Qualidade.', 'documentos')),
     meters,
     h('div', { class: 'card' }, h('div', { class: 'eyebrow' }, 'Onde ficam os meus dados'), h('h3', { style: 'margin-top:6px' }, 'Os seus planos, provas e questões'), note,
       h('div', { class: 'row', style: 'margin-top:10px' }, btn('Cópias e atualizações', { onclick: () => go('atualizacoes') }))));
@@ -1763,7 +1817,8 @@ function toolNotas() {
     h('div', { class: 'calcs' },
       h('section', { class: 'card calc stack' }, h('h2', null, 'Converter a nota de uma prova'), h('p', { class: 'muted small' }, 'Transforme os pontos obtidos numa nota de 0 a 20 valores.'),
         h('span', { class: 'formula' }, 'valores = pontos ÷ total × 20'), h('div', { class: 'fields' }, nIn('pts', 'Pontos obtidos', 'nt-pts'), nIn('tot', 'Total da prova', 'nt-tot')), res),
-      h('section', { class: 'card calc stack' }, h('h2', null, 'Menções'), h('p', { class: 'muted small' }, 'O Regulamento Interno (art.º 49.º) deixa os critérios de avaliação à Direção. Ajuste aqui as menções aos critérios em vigor; os valores abaixo são só um ponto de partida.'), faixasBox,
+      h('section', { class: 'card calc stack' }, h('h2', null, 'Menções'), h('p', { class: 'muted small' }, 'O Regulamento Interno (art.º 49.º) deixa os critérios de avaliação à Direção. Ajuste aqui as menções aos critérios em vigor; os valores abaixo são só um ponto de partida.'),
+        DMAP.regulamento ? h('div', null, btn('Ver o artigo 49.º do Regulamento Interno', { sm: true, kind: 'ghost', icon: 'book', onclick: () => go('documentos', 'regulamento~49.º') })) : null, faixasBox,
         btn('Repor os valores de partida', { sm: true, kind: 'ghost', onclick: () => { N.faixas = clone(DEF_FAIXAS); save(); drawFaixas(); recalc(); conv(); } }))),
     h('section', { class: 'card stack' }, h('h2', null, 'Médias da turma (1.º ao 4.º ano)'),
       h('div', { class: 'callout warn' }, icon('shield'), h('div', null, h('b', null, 'Privacidade dos alunos'), PWA ? 'Os nomes e as notas desta tabela ficam só neste telemóvel: não saem daqui. Para guardar, descarregue em Excel (.csv) ou em Word.' : 'Os nomes e as notas desta tabela ficam só neste navegador: não vão para a conta nem para o link. Para guardar, descarregue em Excel (.csv) ou em Word.')),
@@ -1926,6 +1981,8 @@ function toolRomanos() {
 
 /* ============================================================ CÓPIAS E ATUALIZAÇÕES */
 const NOVIDADES = [
+  { v: '1.1', d: '23/10/2026', itens: ['Calendário de atividades 2026/2027, com as próximas atividades no Início e avisos no telemóvel quando uma atividade se aproxima.',
+    'Documentos do CEL: Estatuto, Regulamento Interno, Código de Ética e Conduta Profissional e Plano de Qualidade Institucional, com pesquisa.'] },
   { v: '1.0', d: '16/10/2026', itens: ['Os manuais do CEL: 20 do 1.º ao 4.º ano (com as respostas do Manual do Professor) e 15 do Jardim de Infância.',
     'Planos de aula preenchidos a partir das unidades e das fichas; provas com as questões dos manuais e gabarito; banco com todas as questões e respostas do Manual do Professor.',
     'Ferramentas: classificações, grelhas da turma em Word, planificação do ano letivo, romanos e tabuada.', 'Biblioteca com glossários, Dicionário Português–Crioulo e conteúdos da Caligrafia.'] }
@@ -1989,13 +2046,295 @@ function vAtualizacoes() {
   return { el, cleanup: Store.on(drawAll) };
 }
 
+/* ============================================================ CALENDÁRIO DE ATIVIDADES */
+const CAL = C.calendario || null;
+const GRUPOS = [['reuniao', 'Reuniões pedagógicas'], ['familias', 'Reuniões com as famílias'], ['provas', 'Provas e avaliações'], ['aida', 'AIDA-CEL'],
+  ['letiva', 'Atividade letiva'], ['feriado', 'Feriados e recessos'], ['ferias', 'Férias escolares'], ['matriculas', 'Matrículas'], ['financeiro', 'Prazos financeiros'], ['alusiva', 'Datas alusivas']];
+const DSEM = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
+const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+const dOf = (iso) => { const [y, m, d] = String(iso).split('-').map(Number); return new Date(y, m - 1, d); };
+const diasAte = (iso, ref) => Math.round((dOf(iso) - dOf(ref || today())) / 864e5);
+// datas em que uma atividade começa: cada data de uma lista («10, 11 e 14/12») ou o início de um intervalo («08–10/02»)
+const evInicios = (e) => e.datas || [e.ini];
+const evCat = (e) => e.cat === 'Trimestre' ? 'Início de trimestre' : e.cat;
+// próxima ocorrência a partir de uma data: a data, e se um intervalo já está a decorrer
+function evProxima(e, ref) {
+  if (e.ini) return e.fim < ref ? null : { d: e.ini < ref ? ref : e.ini, decorrer: e.ini < ref };
+  const d = e.datas.find(x => x >= ref); return d ? { d, decorrer: false } : null;
+}
+function quandoTxt(p, ref) {
+  if (p.decorrer) return 'A decorrer';
+  const n = diasAte(p.d, ref);
+  return n === 0 ? 'Hoje' : n === 1 ? 'Amanhã' : n <= 30 ? `Daqui a ${n} dias` : '';
+}
+function dataChip(iso) {
+  const d = dOf(iso);
+  return h('div', { class: 'cal-d', 'aria-hidden': 'true' }, h('span', null, DSEM[d.getDay()].slice(0, 3)), h('b', null, String(d.getDate())), h('span', null, MESES[d.getMonth()].slice(0, 3)));
+}
+function evRow(e, ref) {
+  const p = evProxima(e, ref), d0 = p ? p.d : evInicios(e)[0], q = p ? quandoTxt(p, ref) : 'Já passou';
+  const dd = dOf(d0), quando = `${DSEM[dd.getDay()]}, ${dd.getDate()} de ${MESES[dd.getMonth()]}`;
+  return h('div', { class: `cal-ev g-${e.g}${p ? '' : ' passou'}${e.cat === 'Trimestre' ? ' tri' : ''}`, id: 'ev-' + e.id },
+    dataChip(d0),
+    h('div', { class: 'cal-tx' }, h('b', null, e.t),
+      h('div', { class: 'cal-meta' }, h('span', { class: 'sr' }, quando), h('span', { class: 'cal-cat' }, h('i', { 'aria-hidden': 'true' }), evCat(e)),
+        (e.datas && e.datas.length > 1) || e.ini ? h('span', null, e.txt) : null, e.h ? h('span', null, e.h) : null)),
+    q ? h('span', { class: 'cal-q' + (p && !p.decorrer && diasAte(p.d, ref) <= 1 ? ' perto' : '') }, q) : null);
+}
+function proximas(ref, dias, max) {
+  const out = [];
+  CAL.eventos.forEach(e => { const p = evProxima(e, ref); if (p && diasAte(p.d, ref) <= dias) out.push([p, e]); });
+  return out.sort((a, b) => a[0].d.localeCompare(b[0].d)).slice(0, max);
+}
+function proximasCard(inicio) {
+  if (!CAL) return null;
+  const ref = today();
+  let ps = proximas(ref, 21, inicio ? 4 : 5), titulo = 'Próximas atividades';
+  if (!ps.length) { ps = proximas(ref, 400, 1); titulo = 'Próxima atividade'; }
+  return h('div', { class: 'card stack' }, h('div', null, h('div', { class: 'eyebrow' }, `Calendário ${CAL.ano}`), h('h3', { style: 'margin:4px 0 0' }, titulo)),
+    ps.length ? h('div', { class: 'cal-list' }, ps.map(([, e]) => evRow(e, ref))) : h('p', { class: 'muted' }, 'Não há mais atividades neste ano letivo.'),
+    inicio ? h('div', { class: 'row' }, btn('Ver o calendário', { icon: 'cal', onclick: () => go('calendario') })) : null);
+}
+
+/* ---------- avisos: dentro da aplicação e, com a aplicação fechada, pelo telemóvel (quando tem internet) */
+const AVK = 'cel-avisos';
+const avPrefs = () => Object.assign({ ativos: false, fin: false, alu: false }, LS.get(AVK, {}));
+const avConta = (e, pr) => !((e.g === 'financeiro' && !pr.fin) || (e.g === 'alusiva' && !pr.alu));
+const avSuporte = () => !!PWA && 'Notification' in window && 'serviceWorker' in navigator;
+function idbKV(k, v) {   // a mesma base de dados que o service worker lê ao acordar
+  return new Promise((res) => {
+    try {
+      const r = indexedDB.open('cel-avisos', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('kv');
+      r.onerror = () => res(null);
+      r.onsuccess = () => {
+        try {
+          const tx = r.result.transaction('kv', v === undefined ? 'readonly' : 'readwrite'), st = tx.objectStore('kv');
+          const q = v === undefined ? st.get(k) : st.put(v, k);
+          q.onsuccess = () => res(q.result === undefined ? null : q.result); q.onerror = () => res(null);
+        } catch (e) { res(null); }
+      };
+    } catch (e) { res(null); }
+  });
+}
+async function avisosGuarda() {
+  if (!CAL || typeof indexedDB === 'undefined') return;
+  const pr = avPrefs();
+  await idbKV('eventos', CAL.eventos.map(e => ({ id: e.id, d: evInicios(e), t: e.t, cat: evCat(e), h: e.h, g: e.g })));
+  await idbKV('cfg', { ativos: !!(pr.ativos && 'Notification' in window && Notification.permission === 'granted'), fin: pr.fin, alu: pr.alu, ano: CAL.ano });
+}
+async function registaSync(desligar) {
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    if (!('periodicSync' in reg)) return 'sem';
+    if (desligar) { await reg.periodicSync.unregister('cel-avisos'); return 'off'; }
+    const st = await navigator.permissions.query({ name: 'periodic-background-sync' });
+    if (st.state !== 'granted') return 'sem';
+    await reg.periodicSync.register('cel-avisos', { minInterval: 12 * 3600e3 });
+    return 'ok';
+  } catch (e) { return 'sem'; }
+}
+async function mostraAviso(titulo, corpo, tag) {
+  try { const reg = await navigator.serviceWorker.ready; await reg.showNotification(titulo, { body: corpo, icon: 'icons/icon-192.png', tag, data: { url: './#calendario' } }); return true; }
+  catch (e) { return false; }
+}
+function avisosCard() {
+  const box = h('div', { class: 'card stack' });
+  const draw = async () => {
+    const pr = avPrefs(), head = h('div', null, h('div', { class: 'eyebrow' }, 'Avisos'), h('h3', { style: 'margin:4px 0 0' }, 'Avisar quando uma atividade se aproxima'));
+    if (!avSuporte()) {
+      put(box, head, h('p', { class: 'small muted' }, 'Os avisos funcionam na aplicação instalada no telemóvel. Aqui, as próximas atividades aparecem no Início.'));
+      return;
+    }
+    const perm = Notification.permission;
+    const explica = h('p', { class: 'small muted' }, 'O telemóvel avisa na véspera e no próprio dia de cada atividade. Com a aplicação fechada, o aviso chega quando o telemóvel tem internet; ao abrir a aplicação, as atividades próximas aparecem sempre no Início.');
+    if (perm === 'denied') {
+      put(box, head, explica, h('div', { class: 'callout warn' }, icon('info'), h('div', null, h('b', null, 'Os avisos estão bloqueados neste telemóvel.'),
+        'Para os permitir, abra as definições do telemóvel, entre em Aplicações, escolha «Professor CEL» e ligue as Notificações.')));
+      return;
+    }
+    if (pr.ativos && perm === 'granted') {
+      const est = h('p', { class: 'small' }, 'A confirmar…');
+      const opt = (k, t) => h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: pr[k], onchange: async (ev) => { LS.set(AVK, Object.assign(avPrefs(), { [k]: ev.target.checked })); await avisosGuarda(); } }), t);
+      put(box, head, h('div', { class: 'row' }, h('span', { class: 'chip ok' }, 'Avisos ligados')), explica, est,
+        h('div', { class: 'stack', style: 'gap:6px' }, h('span', { class: 'small' }, 'Avisar também sobre:'), opt('fin', 'Prazos financeiros (mensalidades, PICEL, multas)'), opt('alu', 'Datas alusivas')),
+        h('div', { class: 'row' }, btn('Experimentar um aviso', { sm: true, icon: 'bell', onclick: async () => { if (await mostraAviso('Exemplo de aviso do CEL', 'Assim aparecem os avisos das atividades do calendário.', 'cel-exemplo')) toast('Aviso enviado. Veja as notificações do telemóvel.'); else toast('Não foi possível mostrar o aviso.'); } }),
+          btn('Desligar os avisos', { sm: true, kind: 'ghost', onclick: async () => { LS.set(AVK, Object.assign(avPrefs(), { ativos: false })); await avisosGuarda(); await registaSync(true); toast('Avisos desligados.'); draw(); } })));
+      const r = await registaSync();
+      est.textContent = r === 'ok' ? 'Com a aplicação fechada: ligados (quando houver internet).'
+        : 'Com a aplicação fechada: este telemóvel ainda não os permite. Instale a aplicação no ecrã e abra-a de vez em quando com internet; os avisos aparecem ao abrir a aplicação.';
+      return;
+    }
+    put(box, head, h('div', { class: 'row' }, h('span', { class: 'chip' }, 'Avisos desligados')), explica,
+      h('div', { class: 'row' }, btn('Ligar os avisos', { kind: 'primary', icon: 'bell', onclick: async () => {
+        let p = Notification.permission;
+        if (p !== 'granted') { try { p = await Notification.requestPermission(); } catch (e) { p = 'denied'; } }
+        if (p !== 'granted') { toast('Sem autorização, o telemóvel não pode mostrar avisos.'); draw(); return; }
+        LS.set(AVK, Object.assign(avPrefs(), { ativos: true })); await avisosGuarda();
+        await mostraAviso('Avisos do calendário ligados', 'O CEL avisa na véspera e no dia de cada atividade.', 'cel-avisos-ok');
+        draw();
+      } })));
+  };
+  draw();
+  return box;
+}
+async function avisosArranque() {
+  if (!CAL) return;
+  const ref = today(), pr = avPrefs();
+  if (LS.get('cel-avisos-dia', '') !== ref) {   // dentro da aplicação: uma vez por dia
+    const msg = [];
+    [0, 1].forEach(n => CAL.eventos.forEach(e => { if (avConta(e, pr) && evInicios(e).some(d => diasAte(d, ref) === n)) msg.push((n ? 'Amanhã: ' : 'Hoje: ') + e.t); }));
+    if (msg.length) { LS.set('cel-avisos-dia', ref); setTimeout(() => toast(msg.slice(0, 2).join(' · ')), 900); }
+  }
+  if (avSuporte()) { await avisosGuarda(); if (pr.ativos && Notification.permission === 'granted') registaSync(); }
+}
+
+/* ---------- juntar ao calendário do telemóvel ou do computador (.ics) */
+function icsCal() {
+  const pad = (n) => String(n).padStart(2, '0'), dt = (iso) => iso.replace(/-/g, '');
+  const esc = (s) => String(s).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
+  const enc = new TextEncoder();
+  const fold = (l) => { const out = []; let s = l; while (enc.encode(s).length > 74) { let k = Math.min(s.length, 74); while (enc.encode(s.slice(0, k)).length > 74) k--; out.push(s.slice(0, k)); s = ' ' + s.slice(k); } out.push(s); return out.join('\r\n'); };
+  const mais = (iso, n) => { const d = dOf(iso); d.setDate(d.getDate() + n); return isoDate(d); };
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
+  const L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//CEL Visao do Futuro//Recursos do Professor//PT', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'X-WR-CALNAME:' + esc(`CEL — Calendário ${CAL.ano}`)];
+  CAL.eventos.forEach(e => {
+    const m = /^(\d{2}):(\d{2})(?:–(\d{2}):(\d{2}))?$/.exec(e.h || '');
+    (e.ini ? [[e.ini, e.fim]] : e.datas.map(d => [d, d])).forEach(([a, b]) => {
+      L.push('BEGIN:VEVENT', `UID:${e.id}-${dt(a)}@recursos-professor-cel`, `DTSTAMP:${stamp}`);
+      if (m && a === b) L.push(`DTSTART:${dt(a)}T${m[1]}${m[2]}00`, `DTEND:${dt(a)}T${m[3] ? m[3] + m[4] : pad(Number(m[1]) + 1) + m[2]}00`);
+      else L.push(`DTSTART;VALUE=DATE:${dt(a)}`, `DTEND;VALUE=DATE:${dt(mais(b, 1))}`);
+      L.push('SUMMARY:' + esc(e.t), 'CATEGORIES:' + esc(evCat(e)), 'DESCRIPTION:' + esc([evCat(e), e.h, `Calendário de Atividades do CEL ${CAL.ano}`].filter(Boolean).join(' · ')));
+      if (e.g !== 'alusiva' && e.g !== 'financeiro') L.push('BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + esc(e.t), 'TRIGGER:-P1D', 'END:VALARM');
+      L.push('END:VEVENT');
+    });
+  });
+  L.push('END:VCALENDAR');
+  return L.map(fold).join('\r\n') + '\r\n';
+}
+
+const calUI = { g: '', passadas: false };
+function vCalendario() {
+  if (!CAL) return h('div', { class: 'view' }, h('div', { class: 'empty' }, 'O calendário não está nesta versão da aplicação.'));
+  const ref = today(), list = h('div', { class: 'stack' }), filt = h('div', { class: 'seg', role: 'group', 'aria-label': 'Mostrar' });
+  const chk = h('input', { type: 'checkbox', checked: calUI.passadas, onchange: (ev) => { calUI.passadas = ev.target.checked; draw(); } });
+  const draw = () => {
+    put(filt, [['', 'Tudo'], ...GRUPOS.filter(([g]) => CAL.eventos.some(e => e.g === g))].map(([g, t]) =>
+      h('button', { type: 'button', 'aria-pressed': String(calUI.g === g), onclick: () => { calUI.g = g; draw(); } }, t)));
+    const meses = new Map();
+    CAL.eventos.filter(e => !calUI.g || e.g === calUI.g).forEach(e => {
+      const p = evProxima(e, ref); if (!p && !calUI.passadas) return;
+      const d = p ? p.d : evInicios(e)[0], k = d.slice(0, 7);
+      if (!meses.has(k)) meses.set(k, []); meses.get(k).push([d, e]);
+    });
+    const ks = [...meses.keys()].sort();
+    put(list, ks.length ? ks.map(k => { const nm = MESES[Number(k.slice(5, 7)) - 1];
+      return h('section', { class: 'cal-mes' }, h('h2', null, `${nm.charAt(0).toUpperCase() + nm.slice(1)} de ${k.slice(0, 4)}`),
+        h('div', { class: 'cal-list' }, meses.get(k).sort((a, b) => a[0].localeCompare(b[0])).map(([, e]) => evRow(e, ref)))); })
+      : h('div', { class: 'empty' }, calUI.passadas ? 'Nenhuma atividade com este filtro.' : 'Não há mais atividades com este filtro neste ano letivo.'));
+  };
+  draw();
+  return h('div', { class: 'view' },
+    h('div', { class: 'head' }, h('div', null, h('div', { class: 'eyebrow' }, `Ano letivo ${CAL.ano}`), h('h1', null, 'Calendário de atividades')),
+      h('p', null, 'As datas do CEL para todo o ano letivo: reuniões, provas, feriados e atividades da escola. A aplicação avisa quando uma atividade se aproxima.')),
+    h('div', { class: 'split' }, proximasCard(false), avisosCard()),
+    h('div', { class: 'card stack' }, h('h3', { style: 'margin:0' }, 'O ano letivo'), filt, h('label', { class: 'check' }, chk, 'Mostrar também as datas que já passaram'), list),
+    h('div', { class: 'card stack' }, h('h3', { style: 'margin:0' }, 'Notas do calendário'), h('ul', { class: 'small', style: 'margin:0;padding-left:20px' }, CAL.notas.map(n => h('li', null, n))),
+      h('p', { class: 'small muted' }, 'Pode juntar estas datas ao calendário do telemóvel ou do computador (Google Calendar, Samsung Calendar, Outlook), com um alerta na véspera.'),
+      h('div', { class: 'row' }, btn('Juntar ao meu calendário (.ics)', { icon: 'dl', onclick: () => offerFile(`CEL_Calendario_${CAL.ano.replace('/', '-')}.ics`, icsCal(), 'text/calendar') }))));
+}
+
+/* ============================================================ DOCUMENTOS DO CEL */
+const DOCS = C.documentos || [], DMAP = {};
+DOCS.forEach(d => { DMAP[d.id] = d; });
+const docUI = { q: '', cap: '', dq: '', doc: '' };
+const artsOf = (d) => d.capitulos.flatMap(c => c.artigos.map(a => ({ c, a })));
+const blocoTxt = (b) => b.t === 'p' || b.t === 'h' ? b.x : b.t === 'ul' ? b.items.join(' ') : b.t === 'tab' ? [b.cab.join(' '), ...b.linhas.map(r => r.join(' '))].join(' ') : b.t === 'nota' ? b.titulo + ' ' + b.x : '';
+const artTxtCache = new Map();
+const artTxt = (a) => { if (!artTxtCache.has(a)) artTxtCache.set(a, norm(a.titulo + ' ' + a.blocos.map(blocoTxt).join(' '))); return artTxtCache.get(a); };
+const docResumo = (d) => { const n = d.capitulos.reduce((s, c) => s + c.artigos.length, 0); return `${n} artigos · ${d.capitulos.length} capítulos` + (d.anexos && d.anexos.length ? ` · ${d.anexos.length} ${d.anexos.length === 1 ? 'anexo' : 'anexos'}` : ''); };
+function snippet(a, t) {
+  const full = a.blocos.map(blocoTxt).join(' '), i = norm(full).indexOf(t);
+  if (i < 0) return short(full, 130);
+  const s = Math.max(0, i - 50); return (s > 0 ? '…' : '') + full.slice(s, i + t.length + 80).trim() + '…';
+}
+function blocos(bs) {
+  return bs.map(b => b.t === 'p' ? h('p', { class: b.ind ? 'al' : null }, b.x)
+    : b.t === 'h' ? h('h4', null, b.x)
+      : b.t === 'ul' ? h('ul', null, b.items.map(x => h('li', null, x)))
+        : b.t === 'nota' ? h('div', { class: 'callout warn' }, icon('info'), h('div', null, h('b', null, b.titulo), b.x))
+          : b.t === 'tab' ? h('div', { class: 'datatbl' + (b.cab.length >= 3 && b.linhas.length ? ' empilha' : '') }, h('table', null, h('tr', null, b.cab.map(x => h('th', null, x))), b.linhas.map(r => h('tr', null, r.map((x, i) => h('td', { 'data-l': b.cab[i] }, x || '\u00a0'))))))
+            : null);
+}
+function vDocumentos(arg) {
+  const [id, art] = String(arg || '').split('~');
+  if (!DMAP[id]) return docLista();
+  if (docUI.doc !== id) { docUI.doc = id; docUI.dq = ''; docUI.cap = ''; }
+  if (art) { docUI.dq = ''; docUI.cap = ''; }
+  return docVer(DMAP[id], art);
+}
+function docLista() {
+  const q = h('input', { type: 'search', value: docUI.q, placeholder: 'Ex.: faltas, avaliação, matrícula, proteção da criança' }), res = h('div', { class: 'items' });
+  const draw = () => {
+    const raw = docUI.q.trim(), t = norm(raw);
+    if (t.length < 3) { put(res); return; }
+    const hits = [];
+    DOCS.forEach(d => artsOf(d).forEach(({ a }) => { if (artTxt(a).includes(t)) hits.push({ d, a }); }));
+    put(res, hits.length ? [h('p', { class: 'small muted', style: 'margin:0' }, `${hits.length} ${hits.length === 1 ? 'artigo' : 'artigos'} com «${raw}»`),
+      hits.slice(0, 60).map(({ d, a }) => h('button', { type: 'button', class: 'item doc-hit', onclick: () => go('documentos', `${d.id}~${a.n}`) },
+        h('span', { class: 'chip' }, d.sigla), h('span', { class: 't' }, `Artigo ${a.n} — ${a.titulo}`), h('span', { class: 'small muted doc-snip' }, snippet(a, t))))]
+      : h('div', { class: 'empty' }, 'Nenhum artigo com estas palavras.'));
+  };
+  q.addEventListener('input', () => { docUI.q = q.value; draw(); });
+  draw();
+  requestAnimationFrame(() => window.scrollTo(0, 0));
+  return h('div', { class: 'view' },
+    h('div', { class: 'head' }, h('div', null, h('div', { class: 'eyebrow' }, 'Consultar'), h('h1', null, 'Documentos do CEL')),
+      h('p', null, 'O Estatuto, o Regulamento Interno, o Código de Ética e Conduta Profissional e o Plano de Qualidade Institucional, sempre à mão, mesmo sem internet.')),
+    h('div', { class: 'card stack' }, field('doc-q', 'Procurar nos quatro documentos', q), res),
+    h('div', { class: 'tiles' }, DOCS.map(d => h('button', { type: 'button', class: 'tile', onclick: () => go('documentos', d.id) },
+      h('span', { class: 'k' }, docResumo(d)), h('b', null, d.titulo), h('span', null, d.nome)))));
+}
+function docVer(d, art) {
+  const capSel = h('select', { onchange: (ev) => { docUI.cap = ev.target.value; draw(); } },
+    h('option', { value: '' }, 'Todos os capítulos'), d.capitulos.map(c => h('option', { value: c.n, selected: docUI.cap === c.n }, `Capítulo ${c.n} — ${c.titulo}`)));
+  const q = h('input', { type: 'search', value: docUI.dq, placeholder: 'Palavra ou número do artigo' }), body = h('div');
+  const draw = () => {
+    const raw = docUI.dq.trim(), t = norm(raw), num = /^\d+$/.test(t) ? t + '.º' : null, tudo = !t && !docUI.cap;
+    const caps = d.capitulos.filter(c => !docUI.cap || c.n === docUI.cap)
+      .map(c => ({ c, arts: c.artigos.filter(a => !t || (num ? a.n === num : artTxt(a).includes(t))) })).filter(x => x.arts.length);
+    put(body,
+      tudo && d.intro ? h('section', { class: 'doc-cap doc-intro' }, blocos(d.intro)) : null,
+      t ? h('p', { class: 'small muted' }, caps.length ? `${caps.reduce((s, x) => s + x.arts.length, 0)} artigos com «${raw}»` : '') : null,
+      caps.length ? caps.map(({ c, arts }) => h('section', { class: 'doc-cap' }, h('h2', null, h('span', { class: 'n' }, `Capítulo ${c.n}`), c.titulo),
+        arts.map(a => h('article', { class: 'doc-art', id: 'art-' + a.n.replace('.º', '') }, h('h3', null, `Artigo ${a.n}`, h('span', null, a.titulo)), blocos(a.blocos)))))
+        : h('div', { class: 'empty' }, 'Nenhum artigo com estas palavras.'),
+      tudo && d.anexos && d.anexos.length ? h('section', { class: 'doc-cap' }, h('h2', null, h('span', { class: 'n' }, 'Anexos'), d.anexos.length === 1 ? d.anexos[0].titulo : 'Anexos do documento'),
+        d.anexos.map(an => h('article', { class: 'doc-art' }, d.anexos.length > 1 ? h('h3', null, an.n ? `Anexo ${an.n}` : 'Anexo', h('span', null, an.titulo)) : null, blocos(an.blocos)))) : null,
+      tudo && d.fecho ? h('section', { class: 'doc-fecho' }, d.fecho.titulo ? h('h3', null, d.fecho.titulo) : null, d.fecho.linhas.map(x => h('p', null, x))) : null);
+  };
+  q.addEventListener('input', () => { docUI.dq = q.value; draw(); });
+  draw();
+  if (!art) requestAnimationFrame(() => window.scrollTo(0, 0));
+  if (art) requestAnimationFrame(() => { const el = document.getElementById('art-' + art.replace('.º', '')); if (el) { el.classList.add('alvo'); el.scrollIntoView({ block: 'start' }); } });
+  return h('div', { class: 'view' },
+    h('div', null, btn('Todos os documentos', { sm: true, kind: 'ghost', icon: 'back', onclick: () => go('documentos') })),
+    h('div', { class: 'head' }, h('div', null, h('div', { class: 'eyebrow' }, 'Documentos do CEL'), h('h1', null, d.titulo)),
+      h('div', { class: 'stack', style: 'gap:4px' }, h('p', { style: 'margin:0' }, d.nome), (d.meta || []).map(m => h('p', { class: 'small muted', style: 'margin:0' }, m)), d.lema ? h('p', { class: 'small muted', style: 'margin:0' }, d.lema) : null)),
+    h('div', { class: 'card' }, h('div', { class: 'fields' }, field('doc-cap', 'Capítulo', capSel), field('doc-dq', 'Procurar neste documento', q))),
+    h('div', { class: 'card doc' }, body));
+}
+
 /* ============================================================ arranque */
 ICONS.shield = '<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/>';
-const VIEWFN = { inicio: vInicio, biblioteca: vBiblioteca, planos: vPlanos, provas: vProvas, banco: vBanco, ferramentas: vFerramentas, atualizacoes: vAtualizacoes };
+ICONS.bell = '<path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21a2 2 0 0 0 4 0"/>';
+ICONS.back = '<path d="M19 12H5M11 6l-6 6 6 6"/>';
+const VIEWFN = { inicio: vInicio, biblioteca: vBiblioteca, planos: vPlanos, provas: vProvas, banco: vBanco, ferramentas: vFerramentas, calendario: vCalendario, documentos: vDocumentos, atualizacoes: vAtualizacoes };
 Store.init(); buildNav(); modeChip();
 Store.on(k => { if (k === '*') modeChip(); });
 window.addEventListener('hashchange', () => { freshNav(); render(); });
 render();
+avisosArranque();
 }
 if (document.getElementById('cel-dados')) boot(); else window.CEL_BOOT = boot;
 })();

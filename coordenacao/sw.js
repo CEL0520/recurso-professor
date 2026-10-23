@@ -1,8 +1,8 @@
 /* Códigos CEL — área da coordenação: guarda a página neste aparelho para abrir sem internet. */
-const VERSAO = '1.0.1-781ac51b';
+const VERSAO = '1.1.0-13a4e72e';
 const CACHE = 'cel-coord-' + VERSAO;
 const FICHEIROS = ["./index.html", "./manifest.webmanifest", "./icons/coord-192.png", "./icons/coord-512.png", "./icons/coord-maskable-512.png"];
-self.addEventListener('install', (e) => { self.skipWaiting(); e.waitUntil(caches.open(CACHE).then((c) => c.addAll(FICHEIROS))); });
+self.addEventListener('install', (e) => { self.skipWaiting(); e.waitUntil(caches.open(CACHE).then((c) => c.addAll(FICHEIROS.map((f) => new Request(f, { cache: 'reload' })))));  });
 self.addEventListener('activate', (e) => {
   e.waitUntil(caches.keys().then((ks) => Promise.all(ks.filter((k) => k.startsWith('cel-coord-') && k !== CACHE).map((k) => caches.delete(k)))).then(() => self.clients.claim()));
 });
