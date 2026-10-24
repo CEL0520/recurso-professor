@@ -1,5 +1,5 @@
 /* Códigos CEL — área da coordenação: guarda a página neste aparelho para abrir sem internet. */
-const VERSAO = '1.2.0-415b352c';
+const VERSAO = '1.2.0-0847e449';
 const CACHE = 'cel-coord-' + VERSAO;
 const FICHEIROS = ["./index.html", "./manifest.webmanifest", "./icons/coord-192.png", "./icons/coord-512.png", "./icons/coord-maskable-512.png"];
 self.addEventListener('install', (e) => { self.skipWaiting(); e.waitUntil(caches.open(CACHE).then((c) => c.addAll(FICHEIROS.map((f) => new Request(f, { cache: 'reload' })))));  });

@@ -777,6 +777,7 @@ const tamTxt = (n) => !n ? '0 KB' : n >= 1048576 ? `${(n / 1048576).toLocaleStri
 const horasTxt = (x) => `${Number(x).toLocaleString('pt-PT', { maximumFractionDigits: 1 })} ${Number(x) === 1 ? 'hora' : 'horas'}`;
 const donoRepo = () => String(CFG.repo || '').split('/')[0], nomeRepo = () => String(CFG.repo || '').split('/')[1] || '';
 const nomeSinc = () => String(CFG.repoSinc || '').split('/')[1] || '';
+const acessoChave = () => nomeSinc() ? `aos repositórios ${nomeRepo()} e ${nomeSinc()}` : 'ao repositório da aplicação';
 const tipoAparelho = () => /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent) ? 'telemóvel' : 'computador';
 const diasChave = () => Math.max(30, Math.min(366, Math.ceil((Date.parse((CFG.validade || '') + 'T23:59:59Z') - Date.now()) / 864e5) || 366));
 const urlChave = () => 'https://github.com/settings/personal-access-tokens/new?' + new URLSearchParams({ name: `Coordenação CEL · ${tipoAparelho()}`, description: 'Publicar as formações e a lista de acessos dos Recursos do Professor e sincronizar o registo da coordenação entre aparelhos.', target_name: donoRepo(), expires_in: String(diasChave()), contents: 'write' }).toString();
@@ -831,7 +832,7 @@ function cartaoGithub() {
       h('div', { class: 'row', style: 'gap:8px' }, h('span', { class: 'estado ativo' }, 'Ligada'), h('span', { class: 'small' }, `Esta área publica diretamente no repositório ${CFG.repo}.`)), msg,
       h('div', { class: 'row' }, btn('Testar a ligação', { sm: true, icon: 'refresh', onclick: async () => { msg.textContent = 'A testar…'; const e = await testaGH(GHT); const es = e ? null : await testaSinc(GHT); msg.textContent = e || es || 'A ligação funciona: pode publicar, e o registo sincroniza-se com os outros aparelhos.'; } }),
         btn('Apagar a chave deste aparelho', { sm: true, kind: 'ghost', icon: 'x', onclick: async () => { await gravaGHT(''); toast('Chave do GitHub apagada deste aparelho.'); desenha(); } })),
-      h('p', { class: 'tiny' }, 'A chave fica cifrada neste aparelho com a sua palavra-passe e só dá acesso ao repositório da aplicação. Se perder o telemóvel, apague-a também no GitHub: Settings → Developer settings → Personal access tokens.'));
+      h('p', { class: 'tiny' }, `A chave fica cifrada neste aparelho com a sua palavra-passe e só dá acesso ${acessoChave()}. Se perder o telemóvel, apague-a também no GitHub: Settings → Developer settings → Personal access tokens.`));
   }
   const inp = h('input', { type: 'password', class: 'mono', autocomplete: 'off', spellcheck: 'false', placeholder: 'github_pat_…' });
   const ok = btn('Guardar a chave', { kind: 'primary', icon: 'key' });
@@ -846,7 +847,7 @@ function cartaoGithub() {
     inp.value = ''; toast(es ? 'Ligação ao GitHub guardada. ' + es : 'Ligação ao GitHub guardada. O registo vai sincronizar-se com os outros aparelhos.'); tabs(); desenha(); sincroniza();
   });
   return h('div', { class: 'card stack' }, h('h3', null, 'Ligação ao GitHub'),
-    h('p', { class: 'small' }, 'Para publicar com um toque, esta área precisa de uma chave do GitHub só para a aplicação. Cria-se uma vez por ano letivo:'),
+    h('p', { class: 'small' }, nomeSinc() ? 'Para publicar com um toque e sincronizar o registo entre aparelhos, esta área precisa de uma chave do GitHub. Cria-se uma vez por ano letivo, em cada aparelho:' : 'Para publicar com um toque, esta área precisa de uma chave do GitHub só para a aplicação. Cria-se uma vez por ano letivo:'),
     h('ol', { class: 'passos small' },
       h('li', null, 'Toque em «Criar a chave no GitHub» e entre na conta ', h('b', null, donoRepo()), ', se for preciso.'),
       h('li', null, 'Em «Repository access», escolha «Only select repositories» e depois ', h('b', null, nomeRepo()), nomeSinc() ? [' e ', h('b', null, nomeSinc()), ' (os dois)'] : null, '.'),
@@ -855,12 +856,13 @@ function cartaoGithub() {
       h('li', null, 'Volte aqui, cole a chave e toque em «Guardar a chave».')),
     h('div', null, btn('Criar a chave no GitHub', { icon: 'send', onclick: () => abre(urlChave(), true) })),
     field('gh-chave', 'Chave do GitHub', inp), msg, h('div', { class: 'row' }, ok),
-    h('p', { class: 'tiny' }, 'A chave fica cifrada neste aparelho com a sua palavra-passe e só dá acesso ao repositório da aplicação. Expira no fim do ano letivo; depois cria-se outra.'));
+    h('p', { class: 'tiny' }, `A chave fica cifrada neste aparelho com a sua palavra-passe e só dá acesso ${acessoChave()}. Expira no fim do ano letivo; depois cria-se outra.`));
 }
 
 /* ---------- formações (só na área online)
    A lista das formações e os manuais vão para o sítio da aplicação, cifrados com a chave do ano: só os professores com
-   código os abrem. As presenças nunca saem deste aparelho: ficam cifradas com a palavra-passe, como o registo. */
+   código os abrem. As presenças nunca vão para o sítio: ficam cifradas neste aparelho com a palavra-passe, como o registo,
+   e (com a ligação ao GitHub) no repositório privado da coordenação, que as junta entre os aparelhos. */
 const FK = 'cel-coord-formacoes-' + CFG.chaveId;
 const novoFL = () => ({ v: 1, lista: [], presencas: {}, base: '' });
 let FL = novoFL(), gravaFL = async () => false;
@@ -1003,7 +1005,7 @@ function painelFormacoes() {
   const estadoTxt = pend ? 'Há alterações por publicar.' : fSitio.estado === 'ok' || fSitio.estado === 'vazio' ? 'Está tudo publicado.' : fSitio.estado === 'a ler' ? 'A comparar com o sítio da aplicação…' : 'Não há alterações por publicar.';
   return h('div', { class: 'stack' },
     h('div', { class: 'head' }, h('div', null, h('div', { class: 'eyebrow' }, 'Registo'), h('h1', null, 'Formações')),
-      h('p', null, 'Registe as formações feitas no CEL e junte o manual quando o formador o disponibilizar. Depois de publicar, a lista e os manuais aparecem na aplicação dos professores. As presenças ficam só neste aparelho.')),
+      h('p', null, 'Registe as formações feitas no CEL e junte o manual quando o formador o disponibilizar. Depois de publicar, a lista e os manuais aparecem na aplicação dos professores. As presenças ficam só na coordenação.')),
     conflito ? h('div', { class: 'callout warn' }, h('div', { class: 'stack', style: 'gap:8px' }, h('div', null, h('b', null, 'A lista no sítio foi mudada noutro aparelho.'), 'Se publicar daqui, fica a lista deste aparelho.'),
       h('div', null, btn('Usar a lista do sítio', { sm: true, onclick: async () => { FL.base = ''; FL.lista = []; await sincronizaF(); desenha(); } })))) : null,
     fSitio.estado === 'erro' ? h('div', { class: 'callout warn' }, h('div', null, h('b', null, 'Não foi possível ler a lista publicada.'), 'Confirme a ligação à internet. Pode continuar a registar formações neste aparelho.')) : null,
@@ -1021,7 +1023,9 @@ function painelFormacoes() {
         } })), pubEstado),
     h('div', { class: 'items' }, lista.length ? lista.map(item) : h('div', { class: 'empty' }, 'Ainda não há formações registadas. Toque em «Nova formação».')),
     h('div', { class: 'card stack' }, h('h3', null, 'Presenças e horas de formação'),
-      h('p', { class: 'small muted' }, 'As presenças ficam guardadas só neste aparelho, cifradas com a sua palavra-passe. Descarregue a lista para o Excel ou guarde uma cópia de segurança de vez em quando.'),
+      h('p', { class: 'small muted' }, GHT && nomeSinc()
+        ? 'As presenças ficam cifradas neste aparelho e no repositório privado da coordenação, iguais no computador e no telemóvel. Descarregue a lista para o Excel quando precisar.'
+        : 'As presenças ficam guardadas só neste aparelho, cifradas com a sua palavra-passe. Descarregue a lista para o Excel ou guarde uma cópia de segurança de vez em quando.'),
       h('div', { class: 'row' },
         btn('Excel (.csv)', { icon: 'dl', onclick: () => descarrega(`Presencas_Formacoes_CEL_${hojeISO()}.csv`, csv(), 'text/csv') }),
         btn('Cópia de segurança (.json)', { icon: 'dl', onclick: () => descarrega(`Formacoes_CEL_${hojeISO()}.json`, JSON.stringify({ app: 'cel-formacoes', chaveId: CFG.chaveId, exportado: new Date().toISOString(), formacoes: FL.lista, presencas: FL.presencas }, null, 1), 'application/json') }),
@@ -1116,7 +1120,7 @@ function painelPresencas() {
   const sair = () => { fUI = { modo: 'lista', id: null }; desenha(); };
   return h('div', { class: 'stack' },
     h('div', { class: 'head' }, h('div', null, h('div', { class: 'eyebrow' }, 'Presenças'), h('h1', null, f.titulo)),
-      h('p', null, `${dataPT(f.data)}${f.duracao ? ' · ' + horasTxt(f.duracao) : ''} · ${f.formador}. Esta lista fica só neste aparelho: os professores não a veem.`)),
+      h('p', null, `${dataPT(f.data)}${f.duracao ? ' · ' + horasTxt(f.duracao) : ''} · ${f.formador}. Esta lista fica só na coordenação: os professores não a veem.`)),
     h('div', { class: 'card stack' }, h('div', { class: 'row', style: 'justify-content:space-between' }, h('h3', { style: 'margin:0' }, 'Professores'), conta),
       nomes.length > 8 ? field('fp-q', 'Procurar', q) : null, lista,
       nomes.length ? h('div', { class: 'row' }, btn('Marcar todos', { sm: true, onclick: () => todos(true) }), btn('Desmarcar todos', { sm: true, kind: 'ghost', onclick: () => todos(false) })) : null),
@@ -1155,7 +1159,7 @@ function paraSinc() { clearTimeout(SINC.timer); SINC.sessao++; SINC.estado = '';
 function pintaSinc() {
   if (!ONLINE) { sincEl.textContent = ''; return; }
   const hora = (t) => new Date(t).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' });
-  sincEl.textContent = !GHT ? 'Este aparelho ainda não sincroniza com os outros: guarde a chave do GitHub em «Formações» → «Ligação ao GitHub».'
+  sincEl.textContent = !GHT ? 'Este aparelho ainda não sincroniza com os outros: guarde a chave do GitHub em «Definições» → «Ligação ao GitHub».'
     : SINC.estado === 'a sincronizar' ? 'A sincronizar com os outros aparelhos…'
       : SINC.estado === 'ok' ? `Registo partilhado com os outros aparelhos · sincronizado às ${hora(SINC.quando)}.`
         : SINC.estado === 'erro' ? `Sem sincronização: ${SINC.erro}`
