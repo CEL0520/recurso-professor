@@ -1,5 +1,5 @@
 /* Recursos do Professor CEL — guarda a aplicação no telemóvel para funcionar sem internet. */
-const VERSAO = '1.1.0-17c01b6e';
+const VERSAO = '1.2.0-2e07ce98';
 const CACHE = 'cel-rp-' + VERSAO;
 const FICHEIROS = ["./", "./index.html", "./manifest.webmanifest", "./dados.2460e27fab.bin", "./fonts/Lora-Bold.woff", "./fonts/Figtree.woff", "./fonts/IBMPlexMono-Regular.woff", "./fonts/IBMPlexMono-Medium.woff", "./icons/icon-192.png", "./icons/icon-512.png", "./icons/maskable-512.png", "./icons/emblema.jpg"];
 const BASE = new URL('./', self.location).pathname;
@@ -76,6 +76,7 @@ self.addEventListener('fetch', (e) => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
   if (url.pathname.endsWith('/acessos.json')) return;            // a lista de acessos vem sempre da internet
+  if (url.pathname.includes('/formacoes/')) return;              // as formações: a aplicação guarda-as à parte, quando as descarrega
   if (req.mode === 'navigate') {
     if (url.pathname !== BASE && url.pathname !== BASE + 'index.html') return;   // outras páginas (por exemplo, a área da coordenação) vêm da internet
     e.respondWith(caches.match('./index.html', { cacheName: CACHE }).then((r) => r || fetch(req))); return;

@@ -376,6 +376,16 @@ legend { font-size: 12.5px; font-weight: 700; color: var(--ink-2); padding: 0 4p
 }
 @media (max-width: 400px) { .top .mode { display: none } }
 
+/* formações (lista publicada pela coordenação; manuais descarregados quando o professor os pede) */
+.f-top { display: grid; grid-template-columns: 58px minmax(0, 1fr); gap: 12px; align-items: start }
+.f-tx h3 { margin: 2px 0 0; font-size: 18px; line-height: 1.3 }
+.f-tx > .row { margin-bottom: 4px }
+.f-card { scroll-margin-top: 90px }
+.f-card .kv { margin: 0 }
+.f-resumo p { margin: 0 0 6px; line-height: 1.5 } .f-resumo p:last-child { margin-bottom: 0 }
+.f-card h3, .f-resumo p, .f-card dd { overflow-wrap: anywhere }
+@media (max-width: 560px) { .f-top { grid-template-columns: 50px minmax(0, 1fr); gap: 10px } }
+
 /* ferramenta do coordenador */
 .aviso { background: var(--amber-soft); border-bottom: 1px solid var(--amber-line); color: var(--ink); font-size: 13.5px }
 .aviso div { max-width: 1100px; margin: 0 auto; padding: 8px max(16px, env(safe-area-inset-right, 0px)) 8px max(16px, env(safe-area-inset-left, 0px)); display: flex; gap: 8px; align-items: center }
@@ -395,7 +405,7 @@ textarea.pedido { font-family: var(--f-mono); font-size: 13px; min-height: 130px
 .top .btn { margin-left: auto; background: transparent; color: var(--brand-ink); border-color: rgba(255, 255, 255, .35) }
 .top .btn:hover { background: rgba(255, 255, 255, .08) }
 .top .btn[hidden] { display: none }
-@media (max-width: 420px) { .so-largo { display: none } .tabs { gap: 0 } .tabs button { padding: 9px 9px } }
+@media (max-width: 420px) { .so-largo { display: none } .tabs { gap: 0; flex-wrap: wrap } .tabs button { padding: 9px 7px; font-size: 14px } }
 .cofre { width: 100%; max-width: 520px; margin: 0 auto }
 .cofre h1 { font-size: clamp(26px, 7vw, 32px) }
 .g-err:empty { display: none }
@@ -404,6 +414,10 @@ textarea.pedido { font-family: var(--f-mono); font-size: 13px; min-height: 130px
 .g-actions .btn { width: 100%; min-height: 46px; font-size: 15px }
 .g-install { border: 1.5px dashed var(--line-2); border-radius: var(--r); padding: 14px; display: flex; flex-direction: column; gap: 8px }
 .g-install p { margin: 0; color: var(--ink-2); font-size: 14px }
+.pres { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px 16px; max-height: 460px; overflow: auto; padding: 2px }
+.pres .check { align-items: flex-start; line-height: 1.35 }
+.item .t, .item .meta { overflow-wrap: anywhere; min-width: 0 }
+ol.passos.small li { line-height: 1.45 }
 </style>
 </head>
 <body>
@@ -518,7 +532,8 @@ const ICON = {
   wa: '<path d="M4 20l1.3-4A8 8 0 1 1 8.2 19z"/><path d="M9 9.5c.3 1.6 1.8 3.4 3.6 4.2l1.2-1 1.8.8-.4 1.5c-3 .3-6.6-3.2-6.9-6.1l1.4-.6.9 1.7z"/>',
   mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>', sms: '<path d="M4 5h16v11H9l-5 4z"/><path d="M8 10h.01M12 10h.01M16 10h.01"/>',
   dl: '<path d="M12 3v12M7 10l5 5 5-5M5 21h14"/>', ul: '<path d="M12 15V3M7 8l5-5 5 5M5 21h14"/>', pause: '<rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/>',
-  play: '<path d="M7 5l12 7-12 7z"/>', lock: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>', paste: '<rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4h6v3H9z"/>', x: '<path d="M6 6l12 12M18 6L6 18"/>', refresh: '<path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/>', send: '<path d="M4 12l16-8-6 16-2-6z"/>'
+  play: '<path d="M7 5l12 7-12 7z"/>', lock: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>', paste: '<rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4h6v3H9z"/>', x: '<path d="M6 6l12 12M18 6L6 18"/>', refresh: '<path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/>', send: '<path d="M4 12l16-8-6 16-2-6z"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>', save: '<path d="M5 3h11l3 3v15H5z"/><path d="M8 3v5h8V3"/><path d="M8 14h8v7H8z"/>', pen: '<path d="M4 20l4-1 11-11-3-3L5 16z"/>', users: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18.5 20a6.5 6.5 0 0 0-3-5.5"/>'
 };
 function icon(n) { const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); for (const [k, v] of Object.entries({ viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '1.8', 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'aria-hidden': 'true' })) s.setAttribute(k, v); s.innerHTML = ICON[n] || ''; return s; }
 const btn = (label, o = {}) => h('button', { type: 'button', class: 'btn ' + (o.kind || '') + (o.sm ? ' sm' : ''), onclick: o.onclick, disabled: o.disabled, title: o.title }, o.icon ? icon(o.icon) : null, label);
@@ -578,10 +593,10 @@ function botoesEnvio(e) {
 let aba = 'novo';
 function tabs() {
   const n = reg.length, p = pendente();
-  $('#tabs').replaceChildren(...[['novo', 'Novo código', ['Novo', h('span', { class: 'so-largo' }, ' código')]], ['acessos', `Acessos (${n})`], ['publicar', p ? 'Publicar •' : 'Publicar'], ['definicoes', 'Definições']].map(([id, t, conteudo]) =>
+  $('#tabs').replaceChildren(...[['novo', 'Novo código', ['Novo', h('span', { class: 'so-largo' }, ' código')]], ['acessos', `Acessos (${n})`, ['Acessos', h('span', { class: 'so-largo' }, ` (${n})`)]], ['publicar', p ? 'Publicar •' : 'Publicar'], ONLINE ? ['formacoes', pendenteF() ? 'Formações •' : 'Formações'] : null, ['definicoes', 'Definições']].filter(Boolean).map(([id, t, conteudo]) =>
     h('button', { type: 'button', role: 'tab', 'aria-label': conteudo ? t : null, 'aria-selected': String(aba === id), onclick: () => { aba = id; desenha(); } }, conteudo || t)));
 }
-function desenha() { tabs(); const P = { novo: painelNovo, acessos: painelAcessos, publicar: painelPublicar, definicoes: painelDefinicoes }[aba](); $('#painel').replaceChildren(P); window.scrollTo(0, 0); }
+function desenha() { tabs(); const P = { novo: painelNovo, acessos: painelAcessos, publicar: painelPublicar, formacoes: painelFormacoes, definicoes: painelDefinicoes }[aba](); $('#painel').replaceChildren(P); window.scrollTo(0, 0); }
 
 /* ---------- novo código */
 let rascunho = '';
@@ -720,19 +735,30 @@ function painelPublicar() {
       tabs();
     } catch (e) { estado.replaceChildren(h('p', { class: 'small', style: 'color:var(--danger)' }, 'Não foi possível ler a lista publicada. Confirme o endereço e a ligação à internet.')); }
   };
+  const api = ONLINE && !!GHT, publicarJa = api ? btn('Publicar agora', { kind: 'primary', icon: 'send' }) : null;
+  if (publicarJa) publicarJa.addEventListener('click', async () => {
+    publicarJa.disabled = true; estado.replaceChildren(h('p', { class: 'small' }, 'A publicar…'));
+    try {
+      await GH.commit([{ path: 'acessos.json', bytes: new TextEncoder().encode(conteudo() + '\n') }], [], 'Lista de acessos: suspensos e retirados (área da coordenação)');
+      LS.set(PK, L.assin); tabs();
+      estado.replaceChildren(h('div', { class: 'callout' }, h('div', null, h('b', null, 'Lista publicada.'), 'Os telemóveis recebem as alterações da próxima vez que tiverem internet. O sítio demora um ou dois minutos a atualizar.')));
+    } catch (e) { estado.replaceChildren(h('div', { class: 'callout danger' }, h('div', null, h('b', null, 'A lista não foi publicada.'), GH.erro(e)))); }
+    finally { publicarJa.disabled = false; }
+  });
   return h('div', { class: 'stack' },
     h('div', { class: 'head' }, h('div', null, h('div', { class: 'eyebrow' }, 'Suspender e retirar'), h('h1', null, 'Publicar a lista de acessos')),
       h('p', null, 'Os telemóveis só sabem que um acesso foi suspenso ou retirado quando leem esta lista no sítio da aplicação. A lista não tem nomes nem contactos: só uma marca de cada código.')),
     h('div', { class: 'card stack' + (pend ? ' pendente' : '') },
       h('p', null, pend ? 'Há alterações que ainda não foram publicadas.' : 'Não há alterações por publicar.'),
       h('p', { class: 'small muted' }, `${L.s.length} ${L.s.length === 1 ? 'código suspenso' : 'códigos suspensos'} · ${L.r.length} ${L.r.length === 1 ? 'código retirado' : 'códigos retirados'}`),
-      h('div', { class: 'row' }, btn('Copiar a lista', { kind: 'primary', icon: 'copy', onclick: () => copia(conteudo(), 'Lista copiada. Agora abra-a no GitHub.') }),
-        edita ? btn('Abrir acessos.json no GitHub', { icon: 'send', onclick: () => abre(edita, true) }) : null,
+      h('div', { class: 'row' }, publicarJa, btn('Copiar a lista', { kind: api ? '' : 'primary', icon: 'copy', onclick: () => copia(conteudo(), 'Lista copiada. Agora abra-a no GitHub.') }),
+        edita && !api ? btn('Abrir acessos.json no GitHub', { icon: 'send', onclick: () => abre(edita, true) }) : null,
         btn('Verificar a lista publicada', { icon: 'refresh', onclick: verificar })), estado),
-    h('div', { class: 'card stack' }, h('h3', null, 'Como publicar no GitHub'),
+    ONLINE && !api ? h('div', { class: 'callout' }, h('div', null, h('b', null, 'Publicar com um toque'), 'Ligue esta área ao GitHub em «Definições» e o botão «Publicar agora» faz estes passos por si.')) : null,
+    h('div', { class: 'card stack' }, h('h3', null, api ? 'Publicar à mão (sem a ligação ao GitHub)' : 'Como publicar no GitHub'),
       h('ol', { class: 'passos' },
         h('li', null, 'Toque em «Copiar a lista».'),
-        h('li', null, edita ? 'Toque em «Abrir acessos.json no GitHub» e entre na sua conta, se for preciso.' : 'No GitHub, abra o ficheiro acessos.json do repositório da aplicação e toque no lápis (editar).'),
+        h('li', null, edita && !api ? 'Toque em «Abrir acessos.json no GitHub» e entre na sua conta, se for preciso.' : 'No GitHub, abra o ficheiro acessos.json do repositório da aplicação e toque no lápis (editar).'),
         h('li', null, 'Na caixa de texto, apague tudo e cole a lista (toque longo → «Selecionar tudo» → «Colar»).'),
         h('li', null, 'Toque em «Commit changes…» e, na janela que abre, outra vez em «Commit changes» (com a tradução do Chrome pode aparecer «Confirmar alterações»).'),
         h('li', null, 'Ao fim de um ou dois minutos, toque em «Verificar a lista publicada».')),
@@ -740,6 +766,358 @@ function painelPublicar() {
         h('div', { class: 'stack', style: 'margin-top:10px' }, h('p', { class: 'small' }, 'Descarregue o ficheiro e, no repositório, use «Add file» → «Upload files», arraste o acessos.json (substitui o antigo) e carregue em «Commit changes».'),
           h('div', null, btn('Descarregar acessos.json', { icon: 'dl', onclick: () => descarrega('acessos.json', conteudo(), 'application/json') })))),
       h('p', { class: 'small muted' }, `Cada telemóvel lê a lista sempre que tem internet e, no máximo, de ${CFG.diasSemLigacao} em ${CFG.diasSemLigacao} dias, porque a aplicação pede uma ligação curta para confirmar o acesso.`)));
+}
+
+/* ---------- ligação ao GitHub (só na área online): publica diretamente no repositório da aplicação.
+   A chave do GitHub fica cifrada neste aparelho com a palavra-passe, como a chave do ano. */
+const GK = 'cel-coord-github-' + CFG.chaveId;
+let GHT = '', gravaGHT = async () => false;
+const tamTxt = (n) => !n ? '0 KB' : n >= 1048576 ? `${(n / 1048576).toLocaleString('pt-PT', { maximumFractionDigits: 1 })} MB` : `${Math.max(1, Math.round(n / 1024))} KB`;
+const horasTxt = (x) => `${Number(x).toLocaleString('pt-PT', { maximumFractionDigits: 1 })} ${Number(x) === 1 ? 'hora' : 'horas'}`;
+const donoRepo = () => String(CFG.repo || '').split('/')[0], nomeRepo = () => String(CFG.repo || '').split('/')[1] || '';
+const diasChave = () => Math.max(30, Math.min(366, Math.ceil((Date.parse((CFG.validade || '') + 'T23:59:59Z') - Date.now()) / 864e5) || 366));
+const urlChave = () => 'https://github.com/settings/personal-access-tokens/new?' + new URLSearchParams({ name: 'Coordenação CEL', description: 'Publicar as formações e a lista de acessos dos Recursos do Professor, a partir da área da coordenação.', target_name: donoRepo(), expires_in: String(diasChave()), contents: 'write' }).toString();
+const GH = {
+  async api(metodo, caminho, corpo, chave) {
+    let r;
+    try {
+      r = await fetch('https://api.github.com' + caminho, { method: metodo, cache: 'no-store', body: corpo ? JSON.stringify(corpo) : undefined,
+        headers: Object.assign({ Authorization: 'Bearer ' + (chave || GHT), Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' }, corpo ? { 'Content-Type': 'application/json' } : {}) });
+    } catch (e) { throw Object.assign(new Error('rede'), { tipo: 'rede' }); }
+    if (!r.ok) { let info = null; try { info = await r.json(); } catch (e) { info = null; } throw Object.assign(new Error('github ' + r.status), { status: r.status, info }); }
+    return r.status === 204 ? null : r.json();
+  },
+  async base() { const ref = await GH.api('GET', `/repos/${CFG.repo}/git/ref/heads/main`); const c = await GH.api('GET', `/repos/${CFG.repo}/git/commits/${ref.object.sha}`); return { sha: ref.object.sha, tree: c.tree.sha }; },
+  async existentes(prefixo) {
+    const b = await GH.base(), t = await GH.api('GET', `/repos/${CFG.repo}/git/trees/${b.tree}?recursive=1`);
+    return (t.tree || []).filter(x => x.type === 'blob' && x.path.startsWith(prefixo)).map(x => x.path);
+  },
+  // um só commit com todos os ficheiros novos e os que saem; se o repositório mudou entretanto, tenta outra vez
+  async commit(ficheiros, apagar, mensagem, progresso) {
+    const blobs = [];
+    for (const f of ficheiros) { if (progresso) progresso(f); const b = await GH.api('POST', `/repos/${CFG.repo}/git/blobs`, { content: C.b64(f.bytes), encoding: 'base64' }); blobs.push({ path: f.path, mode: '100644', type: 'blob', sha: b.sha }); }
+    for (let tentativa = 0; ; tentativa++) {
+      const b = await GH.base();
+      const t = await GH.api('POST', `/repos/${CFG.repo}/git/trees`, { base_tree: b.tree, tree: [...blobs, ...apagar.map(p => ({ path: p, mode: '100644', type: 'blob', sha: null }))] });
+      const c = await GH.api('POST', `/repos/${CFG.repo}/git/commits`, { message: mensagem, tree: t.sha, parents: [b.sha] });
+      try { await GH.api('PATCH', `/repos/${CFG.repo}/git/refs/heads/main`, { sha: c.sha }); return c.sha; }
+      catch (e) { if (e.status === 422 && tentativa < 2) continue; throw e; }
+    }
+  },
+  erro(e) {
+    if (e && e.tipo === 'rede') return 'Sem ligação à internet. Tente outra vez quando tiver rede.';
+    if (e && e.status === 401) return 'A chave do GitHub não é válida ou já expirou. Crie uma chave nova em «Ligação ao GitHub».';
+    if (e && (e.status === 403 || e.status === 404)) return `A chave do GitHub não tem autorização para escrever na aplicação. Confirme que escolheu o repositório ${nomeRepo()} e «Contents: Read and write».`;
+    if (e && e.status === 409) return 'O repositório da aplicação está vazio ou bloqueado. Fale com quem o configurou.';
+    if (e && e.status === 422) return 'O GitHub recusou a alteração. Tente outra vez daqui a um minuto.';
+    return 'Não foi possível publicar no GitHub' + (e && e.status ? ` (erro ${e.status})` : '') + '. Tente outra vez.';
+  }
+};
+// confirma que a chave lê e escreve no repositório (cria só um pedaço solto, que o GitHub apaga sozinho)
+async function testaGH(chave) {
+  try {
+    await GH.api('GET', `/repos/${CFG.repo}/git/ref/heads/main`, null, chave);
+    await GH.api('POST', `/repos/${CFG.repo}/git/blobs`, { content: C.b64(new TextEncoder().encode('CEL')), encoding: 'base64' }, chave);
+    return null;
+  } catch (e) { return GH.erro(e); }
+}
+function cartaoGithub() {
+  const msg = h('div', { class: 'small', role: 'status' });
+  if (GHT) {
+    return h('div', { class: 'card stack' }, h('h3', null, 'Ligação ao GitHub'),
+      h('div', { class: 'row', style: 'gap:8px' }, h('span', { class: 'estado ativo' }, 'Ligada'), h('span', { class: 'small' }, `Esta área publica diretamente no repositório ${CFG.repo}.`)), msg,
+      h('div', { class: 'row' }, btn('Testar a ligação', { sm: true, icon: 'refresh', onclick: async () => { msg.textContent = 'A testar…'; const e = await testaGH(GHT); msg.textContent = e || 'A ligação funciona: pode publicar.'; } }),
+        btn('Apagar a chave deste aparelho', { sm: true, kind: 'ghost', icon: 'x', onclick: async () => { await gravaGHT(''); toast('Chave do GitHub apagada deste aparelho.'); desenha(); } })),
+      h('p', { class: 'tiny' }, 'A chave fica cifrada neste aparelho com a sua palavra-passe e só dá acesso ao repositório da aplicação. Se perder o telemóvel, apague-a também no GitHub: Settings → Developer settings → Personal access tokens.'));
+  }
+  const inp = h('input', { type: 'password', class: 'mono', autocomplete: 'off', spellcheck: 'false', placeholder: 'github_pat_…' });
+  const ok = btn('Guardar a chave', { kind: 'primary', icon: 'key' });
+  ok.addEventListener('click', async () => {
+    const t = inp.value.trim();
+    if (!/^(github_pat_|ghp_)[A-Za-z0-9_]{20,}$/.test(t)) { msg.textContent = 'Esta não parece uma chave do GitHub. Copie a chave inteira: começa por github_pat_.'; return; }
+    ok.disabled = true; msg.textContent = 'A confirmar a chave com o GitHub…';
+    const e = await testaGH(t); ok.disabled = false;
+    if (e) { msg.textContent = e; return; }
+    if (!(await gravaGHT(t))) { msg.textContent = 'Não foi possível guardar a chave neste aparelho.'; return; }
+    inp.value = ''; toast('Ligação ao GitHub guardada.'); tabs(); desenha();
+  });
+  return h('div', { class: 'card stack' }, h('h3', null, 'Ligação ao GitHub'),
+    h('p', { class: 'small' }, 'Para publicar com um toque, esta área precisa de uma chave do GitHub só para a aplicação. Cria-se uma vez por ano letivo:'),
+    h('ol', { class: 'passos small' },
+      h('li', null, 'Toque em «Criar a chave no GitHub» e entre na conta ', h('b', null, donoRepo()), ', se for preciso.'),
+      h('li', null, 'Em «Repository access», escolha «Only select repositories» e depois ', h('b', null, nomeRepo()), '.'),
+      h('li', null, 'Em «Permissions», confirme que aparece «Contents: Read and write». Se não aparecer, toque em «Add permissions», escolha «Contents» e depois «Read and write».'),
+      h('li', null, 'Toque em «Generate token» (e outra vez, para confirmar) e copie a chave. Começa por github_pat_.'),
+      h('li', null, 'Volte aqui, cole a chave e toque em «Guardar a chave».')),
+    h('div', null, btn('Criar a chave no GitHub', { icon: 'send', onclick: () => abre(urlChave(), true) })),
+    field('gh-chave', 'Chave do GitHub', inp), msg, h('div', { class: 'row' }, ok),
+    h('p', { class: 'tiny' }, 'A chave fica cifrada neste aparelho com a sua palavra-passe e só dá acesso ao repositório da aplicação. Expira no fim do ano letivo; depois cria-se outra.'));
+}
+
+/* ---------- formações (só na área online)
+   A lista das formações e os manuais vão para o sítio da aplicação, cifrados com a chave do ano: só os professores com
+   código os abrem. As presenças nunca saem deste aparelho: ficam cifradas com a palavra-passe, como o registo. */
+const FK = 'cel-coord-formacoes-' + CFG.chaveId;
+const novoFL = () => ({ v: 1, lista: [], presencas: {}, base: '' });
+let FL = novoFL(), gravaFL = async () => false;
+const guardaFL = () => { Promise.resolve(gravaFL()).then((ok) => { if (ok === false) toast('Não foi possível guardar as formações neste aparelho.'); }); };
+const CAMPOS_F = ['id', 'titulo', 'data', 'hora', 'duracao', 'local', 'formador', 'cargo', 'destinatarios', 'resumo', 'manual'];   // só estes campos vão para o sítio
+const publicoF = (f) => { const o = {}; for (const k of CAMPOS_F) if (f[k] != null && f[k] !== '') o[k] = k === 'manual' ? { ficheiro: f.manual.ficheiro, nome: f.manual.nome, tipo: f.manual.tipo, tamanho: f.manual.tamanho } : f[k]; return o; };
+const ordemF = (l) => l.slice().sort((a, b) => String(a.data).localeCompare(String(b.data)) || String(a.id).localeCompare(String(b.id)));
+const assinF = (l) => JSON.stringify(ordemF(l).map(publicoF));
+const pendenteF = () => assinF(FL.lista) !== FL.base;
+const MIMES = { pdf: 'application/pdf', doc: 'application/msword', docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', ppt: 'application/vnd.ms-powerpoint',
+  pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation', xls: 'application/vnd.ms-excel', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', zip: 'application/zip', jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', mp4: 'video/mp4', mp3: 'audio/mpeg' };
+const mimeDe = (nome) => MIMES[String(nome).split('.').pop().toLowerCase()] || 'application/octet-stream';
+// ficheiros dos manuais à espera de publicação (já cifrados como vão para o sítio)
+const IDB = {
+  p: null,
+  abre() { return this.p || (this.p = new Promise((res, rej) => { const r = indexedDB.open('cel-coord', 1); r.onupgradeneeded = () => r.result.createObjectStore('ficheiros'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); })); },
+  async op(modo, fn) { const db = await this.abre(); return new Promise((res, rej) => { const tx = db.transaction('ficheiros', modo); const q = fn(tx.objectStore('ficheiros')); tx.oncomplete = () => res(q ? q.result : undefined); tx.onerror = () => rej(tx.error); tx.onabort = () => rej(tx.error); }); },
+  get(k) { return this.op('readonly', (s) => s.get(k)); }, put(k, v) { return this.op('readwrite', (s) => s.put(v, k)); },
+  del(k) { return this.op('readwrite', (s) => s.delete(k)); }, chaves() { return this.op('readonly', (s) => s.getAllKeys()); }
+};
+// a mesma cifra dos manuais dos professores (chave derivada da chave do ano)
+const juntaB = (a, b) => { const o = new Uint8Array(a.length + b.length); o.set(a); o.set(b, a.length); return o; };
+async function chaveProf() { const d = new Uint8Array(await crypto.subtle.digest('SHA-256', juntaB(new TextEncoder().encode('CEL-RP1|aes|'), KEY))); return crypto.subtle.importKey('raw', d.slice(0, 16), 'AES-GCM', false, ['encrypt', 'decrypt']); }
+async function cifraProf(bytes) { const iv = crypto.getRandomValues(new Uint8Array(12)); return juntaB(iv, new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, await chaveProf(), bytes))); }
+async function decifraProf(b) { return new Uint8Array(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b.slice(0, 12) }, await chaveProf(), b.slice(12))); }
+const resumoHash = async (bytes) => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes)).slice(0, 6), (b) => b.toString(16).padStart(2, '0')).join('');
+const sitio = () => ONLINE ? new URL('../', location.href).href : (def.url.endsWith('/') ? def.url : def.url + '/');
+let fUI = { modo: 'lista', id: null, publicar: false }, fSitio = { estado: '', quando: 0, assin: '' }, fPublicando = false;
+const fPubEstado = h('div');   // o mesmo quadro de estado entre redesenhos, para o progresso da publicação não se perder
+async function leSitioF() {
+  const r = await fetch(sitio() + 'formacoes/indice.bin?t=' + Date.now(), { cache: 'no-store' });
+  if (r.status === 404) return { vazio: true, lista: [] };
+  if (!r.ok) throw new Error('sítio ' + r.status);
+  const j = JSON.parse(new TextDecoder().decode(await decifraProf(new Uint8Array(await r.arrayBuffer()))));
+  return { vazio: false, lista: Array.isArray(j.formacoes) ? j.formacoes : [] };
+}
+// compara com o que está publicado: se este aparelho não tem alterações por publicar, fica com a lista do sítio (publicada noutro aparelho)
+async function sincronizaF() {
+  fSitio.estado = 'a ler';
+  try {
+    const s = await leSitioF(), a = assinF(s.lista), loc = assinF(FL.lista);
+    fSitio = { estado: s.vazio ? 'vazio' : 'ok', quando: Date.now(), assin: a };
+    if (loc === a) { if (FL.base !== a) { FL.base = a; guardaFL(); } }
+    else if (loc === FL.base || (!FL.lista.length && !FL.base)) { FL.lista = s.lista.map((f) => Object.assign({}, f)); FL.base = a; guardaFL(); if (s.lista.length) toast('Lista das formações atualizada a partir do sítio.'); }
+    return fSitio.estado;
+  } catch (e) { fSitio = { estado: 'erro', quando: Date.now(), assin: '' }; return 'erro'; }
+}
+async function publicaF(botao) {
+  const estado = fPubEstado;
+  const diz = (t, tipo, b) => estado.replaceChildren(h('div', { class: 'callout' + (tipo ? ' ' + tipo : '') }, h('div', null, b ? h('b', null, b) : null, t)));
+  if (!GHT) { diz('Ligue primeiro esta área ao GitHub, no fim desta página.', 'warn'); return; }
+  if (fPublicando) return;
+  fPublicando = true; if (botao) botao.disabled = true;
+  try {
+    diz('A ler o que já está publicado…');
+    const precisos = [...new Set(FL.lista.filter((f) => f.manual).map((f) => f.manual.ficheiro))];
+    const existentes = await GH.existentes('formacoes/'), novos = [];
+    for (const p of precisos) {
+      if (existentes.includes(p)) continue;
+      let b = null; try { b = await IDB.get(p); } catch (e) { b = null; }
+      if (!b) { const f = FL.lista.find((x) => x.manual && x.manual.ficheiro === p); throw Object.assign(new Error('falta'), { falta: f ? f.titulo : p }); }
+      novos.push({ path: p, bytes: b });
+    }
+    const indice = JSON.stringify({ v: 1, atualizado: new Date().toISOString(), formacoes: ordemF(FL.lista).map(publicoF) });
+    const ficheiros = [{ path: 'formacoes/indice.bin', bytes: await cifraProf(new TextEncoder().encode(indice)) }, ...novos];
+    const apagar = existentes.filter((p) => p !== 'formacoes/indice.bin' && !precisos.includes(p));
+    const total = novos.reduce((s, x) => s + x.bytes.length, 0);
+    await GH.commit(ficheiros, apagar, `Formações: lista publicada pela coordenação (${FL.lista.length} ${FL.lista.length === 1 ? 'formação' : 'formações'})`,
+      (f) => diz(f.path === 'formacoes/indice.bin' ? 'A enviar a lista das formações…' : `A enviar o manual (${tamTxt(total)})… Não feche esta página.`));
+    FL.base = assinF(FL.lista); guardaFL(); fSitio = { estado: 'ok', quando: Date.now(), assin: FL.base };
+    try { for (const k of await IDB.chaves()) if (!precisos.includes(k) || novos.some((x) => x.path === k)) await IDB.del(k); } catch (e) { /* limpeza opcional */ }
+    diz('Os telemóveis com internet recebem a lista nova daqui a um ou dois minutos.', '', 'Publicado.');
+  } catch (e) {
+    diz(e && e.falta ? `Abra «Editar» na formação «${e.falta}» e escolha outra vez o ficheiro do manual: não está neste aparelho.` : GH.erro(e), 'danger', 'Não foi publicado.');
+  } finally { fPublicando = false; tabs(); if (aba === 'formacoes' && fUI.modo === 'lista') desenha(); else if (botao) botao.disabled = !pendenteF(); }
+}
+function painelFormacoes() {
+  if (fUI.modo === 'editar') return painelFormEditar();
+  if (fUI.modo === 'presencas') return painelPresencas();
+  if (!fPublicando && (!fSitio.estado || (fSitio.estado !== 'a ler' && Date.now() - fSitio.quando > 120e3))) sincronizaF().then(() => { if (aba === 'formacoes' && fUI.modo === 'lista') desenha(); });
+  const pend = pendenteF(), loc = assinF(FL.lista);
+  const conflito = fSitio.estado === 'ok' && pend && fSitio.assin !== FL.base && loc !== fSitio.assin;
+  const pubEstado = fPubEstado;
+  const publicar = btn(fPublicando ? 'A publicar…' : 'Publicar', { kind: 'primary', icon: 'send', disabled: !GHT || !pend || fPublicando });
+  publicar.addEventListener('click', () => publicaF(publicar));
+  const lista = FL.lista.slice().sort((a, b) => String(b.data).localeCompare(String(a.data)));
+  const nPres = (f) => { const p = FL.presencas[f.id]; return p ? p.prof.length + p.outros.length : 0; };
+  const item = (f) => {
+    const conf = h('span'), np = nPres(f);
+    return h('div', { class: 'item' }, h('div', { class: 'grow stack', style: 'gap:2px' },
+        h('span', { class: 't' }, f.titulo),
+        h('div', { class: 'meta' }, [dataPT(f.data), f.hora, f.duracao ? horasTxt(f.duracao) : '', f.formador].filter(Boolean).join(' · ')),
+        h('div', { class: 'meta' }, `${f.manual ? `Manual: ${f.manual.nome} (${tamTxt(f.manual.tamanho)})` : 'Sem manual'} · ${np} ${np === 1 ? 'presença' : 'presenças'}`)),
+      h('div', { class: 'row' },
+        btn('Editar', { sm: true, icon: 'pen', onclick: () => { fPubEstado.replaceChildren(); fUI = { modo: 'editar', id: f.id }; desenha(); } }),
+        btn('Presenças', { sm: true, icon: 'users', onclick: () => { fUI = { modo: 'presencas', id: f.id }; desenha(); } }),
+        btn('Apagar', { sm: true, kind: 'ghost', icon: 'x', onclick: () => conf.replaceChildren(h('span', { class: 'confirm' }, 'Apagar esta formação e as presenças? Sai da aplicação dos professores quando publicar.',
+          btn('Sim, apagar', { sm: true, kind: 'warn', onclick: () => { FL.lista = FL.lista.filter((x) => x.id !== f.id); delete FL.presencas[f.id]; guardaFL(); if (f.manual) IDB.del(f.manual.ficheiro).catch(() => {}); toast('Formação apagada. Publique para a tirar da aplicação dos professores.'); tabs(); desenha(); } }),
+          btn('Cancelar', { sm: true, onclick: () => conf.replaceChildren() }))) }),
+        conf));
+  };
+  const fileIn = h('input', { type: 'file', accept: '.json,application/json', class: 'sr', id: 'f-imp-f' });
+  fileIn.addEventListener('change', () => {
+    const fl = fileIn.files && fileIn.files[0]; if (!fl) return;
+    const rd = new FileReader();
+    rd.onload = () => {
+      try {
+        const d = JSON.parse(rd.result);
+        if (!d || d.app !== 'cel-formacoes' || !Array.isArray(d.formacoes)) { toast('Este ficheiro não é uma cópia das formações.'); return; }
+        if (d.chaveId !== CFG.chaveId) { toast('Esta cópia é de outro ano letivo (outra chave).'); return; }
+        let n = 0;
+        d.formacoes.forEach((f) => { if (f && f.id && f.titulo && !FL.lista.some((x) => x.id === f.id)) { FL.lista.push(f); n++; } });
+        Object.entries(d.presencas || {}).forEach(([id, p]) => {
+          const a = FL.presencas[id] || { prof: [], outros: [] }, junta = (x, y) => [...new Map([...x, ...(y || [])].map((s) => [C.normNome(s), s])).values()];
+          FL.presencas[id] = { prof: junta(a.prof, p.prof), outros: junta(a.outros, p.outros) };
+        });
+        guardaFL(); tabs(); desenha(); toast(`Cópia importada: ${n} ${n === 1 ? 'formação nova' : 'formações novas'} e as presenças.`);
+      } catch (e) { toast('O ficheiro tem um erro e não foi importado.'); }
+      fileIn.value = '';
+    };
+    rd.readAsText(fl);
+  });
+  const csv = () => {
+    const q2 = (s) => /[;"\n]/.test(String(s)) ? `"${String(s).replace(/"/g, '""')}"` : String(s), num = (x) => String(x || '').replace('.', ',');
+    const L = [['Formação', 'Data', 'Duração (horas)', 'Formador', 'Participante', 'Participou como']], tot = new Map();
+    ordemF(FL.lista).forEach((f) => {
+      const p = FL.presencas[f.id] || { prof: [], outros: [] };
+      [...p.prof.map((n) => [n, 'Professor(a) com código']), ...p.outros.map((n) => [n, 'Outro participante'])].forEach(([n, t]) => {
+        L.push([f.titulo, dataPT(f.data), num(f.duracao), f.formador, n, t]);
+        const k = C.normNome(n), x = tot.get(k) || { n, f: 0, h: 0 }; x.f++; x.h += Number(f.duracao) || 0; tot.set(k, x);
+      });
+    });
+    L.push([], ['Participante', 'Formações', 'Horas de formação']);
+    [...tot.values()].sort((a, b) => a.n.localeCompare(b.n, 'pt')).forEach((x) => L.push([x.n, String(x.f), num(x.h)]));
+    return '﻿' + L.map((r) => r.map(q2).join(';')).join('\r\n');
+  };
+  if (fUI.publicar) { fUI.publicar = false; setTimeout(() => publicaF(publicar), 0); }
+  const estadoTxt = pend ? 'Há alterações por publicar.' : fSitio.estado === 'ok' || fSitio.estado === 'vazio' ? 'Está tudo publicado.' : fSitio.estado === 'a ler' ? 'A comparar com o sítio da aplicação…' : 'Não há alterações por publicar.';
+  return h('div', { class: 'stack' },
+    h('div', { class: 'head' }, h('div', null, h('div', { class: 'eyebrow' }, 'Registo'), h('h1', null, 'Formações')),
+      h('p', null, 'Registe as formações feitas no CEL e junte o manual quando o formador o disponibilizar. Depois de publicar, a lista e os manuais aparecem na aplicação dos professores. As presenças ficam só neste aparelho.')),
+    conflito ? h('div', { class: 'callout warn' }, h('div', { class: 'stack', style: 'gap:8px' }, h('div', null, h('b', null, 'A lista no sítio foi mudada noutro aparelho.'), 'Se publicar daqui, fica a lista deste aparelho.'),
+      h('div', null, btn('Usar a lista do sítio', { sm: true, onclick: async () => { FL.base = ''; FL.lista = []; await sincronizaF(); desenha(); } })))) : null,
+    fSitio.estado === 'erro' ? h('div', { class: 'callout warn' }, h('div', null, h('b', null, 'Não foi possível ler a lista publicada.'), 'Confirme a ligação à internet. Pode continuar a registar formações neste aparelho.')) : null,
+    h('div', { class: 'card stack' + (pend ? ' pendente' : '') },
+      h('p', null, estadoTxt),
+      h('p', { class: 'small muted' }, `${FL.lista.length} ${FL.lista.length === 1 ? 'formação' : 'formações'} · ${FL.lista.filter((f) => f.manual).length} com manual`),
+      !GHT ? h('p', { class: 'small' }, 'Para publicar, ligue primeiro esta área ao GitHub (no fim desta página). É só uma vez.') : null,
+      h('div', { class: 'row' }, btn('Nova formação', { kind: GHT && pend ? '' : 'primary', icon: 'plus', onclick: () => { fPubEstado.replaceChildren(); fUI = { modo: 'editar', id: null }; desenha(); } }), publicar,
+        btn('Verificar no sítio', { icon: 'refresh', onclick: async () => {
+          pubEstado.replaceChildren(h('p', { class: 'small' }, 'A verificar…'));
+          const r = await sincronizaF(), ok = !pendenteF();
+          pubEstado.replaceChildren(h('div', { class: 'callout' + (r === 'erro' ? ' warn' : ok ? '' : ' warn') }, h('div', null, r === 'erro' ? 'Não foi possível ler a lista publicada. Confirme a ligação à internet.'
+            : ok ? 'A lista publicada está em dia: os telemóveis recebem-na da próxima vez que tiverem internet.' : 'O sítio ainda não tem as alterações deste aparelho. Se acabou de publicar, verifique outra vez daqui a um minuto.')));
+          tabs(); desenha();
+        } })), pubEstado),
+    h('div', { class: 'items' }, lista.length ? lista.map(item) : h('div', { class: 'empty' }, 'Ainda não há formações registadas. Toque em «Nova formação».')),
+    h('div', { class: 'card stack' }, h('h3', null, 'Presenças e horas de formação'),
+      h('p', { class: 'small muted' }, 'As presenças ficam guardadas só neste aparelho, cifradas com a sua palavra-passe. Descarregue a lista para o Excel ou guarde uma cópia de segurança de vez em quando.'),
+      h('div', { class: 'row' },
+        btn('Excel (.csv)', { icon: 'dl', onclick: () => descarrega(`Presencas_Formacoes_CEL_${hojeISO()}.csv`, csv(), 'text/csv') }),
+        btn('Cópia de segurança (.json)', { icon: 'dl', onclick: () => descarrega(`Formacoes_CEL_${hojeISO()}.json`, JSON.stringify({ app: 'cel-formacoes', chaveId: CFG.chaveId, exportado: new Date().toISOString(), formacoes: FL.lista, presencas: FL.presencas }, null, 1), 'application/json') }),
+        h('label', { class: 'btn', for: 'f-imp-f', tabindex: '0', onkeydown: (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); fileIn.click(); } } }, icon('ul'), 'Importar cópia'), fileIn)),
+    cartaoGithub());
+}
+function painelFormEditar() {
+  const f0 = FL.lista.find((x) => x.id === fUI.id) || null;
+  const f = f0 ? Object.assign({}, f0) : { id: 'f' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), titulo: '', data: hojeISO(), hora: '', duracao: null, local: '', formador: '', cargo: '', destinatarios: 'Professores e Direção', resumo: '', manual: null };
+  const inp = (v, o = {}) => h('input', Object.assign({ type: 'text', value: v == null ? '' : String(v) }, o));
+  const t = inp(f.titulo, { placeholder: 'Ex.: Os manuais do CEL e os Recursos do Professor' }), d = inp(f.data, { type: 'date' }), hr = inp(f.hora, { type: 'time' });
+  const du = inp(f.duracao, { inputmode: 'decimal', placeholder: 'Ex.: 2' }), lo = inp(f.local, { placeholder: 'Ex.: CEL, Bissau' });
+  const fo = inp(f.formador, { placeholder: 'Nome do formador' }), ca = inp(f.cargo, { placeholder: 'Ex.: Coordenador Geral do CEL' }), de = inp(f.destinatarios, { placeholder: 'Ex.: Professores e Direção' });
+  const re = h('textarea', { rows: '5', placeholder: 'Temas tratados, um por linha. Os professores veem este texto.' }); re.value = f.resumo || '';
+  let manual = f.manual ? Object.assign({}, f.manual) : null, novo = null;
+  const mBox = h('div', { class: 'stack' }), fileIn = h('input', { type: 'file', class: 'sr', id: 'f-manual' }), err = h('div', { class: 'g-err', role: 'alert' }), aviso = h('p', { class: 'small', role: 'status' });
+  const pintaM = () => mBox.replaceChildren(
+    manual ? h('div', { class: 'item' }, h('div', { class: 'grow stack', style: 'gap:2px' }, h('span', { class: 't' }, manual.nome), h('div', { class: 'meta' }, tamTxt(manual.tamanho) + (novo || (f0 && f0.manual && f0.manual.ficheiro === manual.ficheiro && pendenteF()) ? ' · por publicar' : ''))),
+      btn('Tirar o manual', { sm: true, kind: 'ghost', icon: 'x', onclick: () => { manual = null; novo = null; aviso.textContent = ''; pintaM(); } }))
+      : h('p', { class: 'small muted', style: 'margin:0' }, 'Sem manual. Se o formador o disponibilizar, junte-o aqui: PDF, Word ou PowerPoint.'),
+    h('div', null, h('label', { class: 'btn', for: 'f-manual', tabindex: '0', onkeydown: (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); fileIn.click(); } } }, icon('ul'), manual ? 'Trocar o ficheiro' : 'Escolher o ficheiro'), fileIn),
+    aviso);
+  fileIn.addEventListener('change', async () => {
+    const fl = fileIn.files && fileIn.files[0]; if (!fl) return;
+    if (fl.size > 40 * 1048576) { aviso.textContent = 'O ficheiro tem mais de 40 MB: é demasiado pesado para os telemóveis. Peça ao formador uma versão mais leve, em PDF.'; fileIn.value = ''; return; }
+    aviso.textContent = 'A preparar o ficheiro…';
+    try {
+      const bytes = await cifraProf(new Uint8Array(await fl.arrayBuffer()));
+      novo = { caminho: `formacoes/m-${await resumoHash(bytes)}.bin`, bytes };
+      manual = { ficheiro: novo.caminho, nome: fl.name, tipo: fl.type || mimeDe(fl.name), tamanho: fl.size };
+      aviso.textContent = fl.size > 15 * 1048576 ? `Ficheiro pesado: cada professor gasta ${tamTxt(fl.size)} de internet para o descarregar. Se puder, use uma versão mais leve.` : '';
+      pintaM();
+    } catch (e) { aviso.textContent = 'Não foi possível ler o ficheiro.'; }
+    fileIn.value = '';
+  });
+  pintaM();
+  const guardar = async () => {
+    const titulo = t.value.trim().replace(/\s+/g, ' '), formador = fo.value.trim().replace(/\s+/g, ' '), dtxt = du.value.trim().replace(',', '.');
+    const dur = dtxt ? Number(dtxt) : null, erros = [];
+    if (!titulo) erros.push('Escreva o tema da formação.');
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(d.value)) erros.push('Escolha a data da formação.');
+    if (!formador) erros.push('Escreva o nome do formador.');
+    if (dtxt && !(dur > 0 && dur <= 300)) erros.push('Escreva a duração em horas (por exemplo, 2 ou 1,5).');
+    if (erros.length) { err.replaceChildren(...erros.map((x) => h('div', null, x))); return false; }
+    if (novo) { try { await IDB.put(novo.caminho, novo.bytes); } catch (e) { err.textContent = 'Não foi possível guardar o ficheiro neste aparelho. Liberte espaço e tente outra vez.'; return false; } }
+    if (f0 && f0.manual && (!manual || manual.ficheiro !== f0.manual.ficheiro)) IDB.del(f0.manual.ficheiro).catch(() => {});
+    const g = { id: f.id, titulo, data: d.value, hora: hr.value || '', duracao: dur, local: lo.value.trim(), formador, cargo: ca.value.trim(), destinatarios: de.value.trim(), resumo: re.value.trim(), manual, alterado: new Date().toISOString() };
+    const i = FL.lista.findIndex((x) => x.id === f.id);
+    if (i >= 0) FL.lista[i] = g; else FL.lista.push(g);
+    guardaFL();
+    return true;
+  };
+  const sair = () => { fUI = { modo: 'lista', id: null }; desenha(); };
+  [t, d, du, fo].forEach((x) => x.addEventListener('input', () => err.replaceChildren()));
+  return h('div', { class: 'stack' },
+    h('div', { class: 'head' }, h('div', null, h('div', { class: 'eyebrow' }, 'Formações'), h('h1', null, f0 ? 'Editar a formação' : 'Nova formação')),
+      h('p', null, 'Os professores veem estes dados na aplicação, depois de publicar. Os campos com * são obrigatórios.')),
+    h('div', { class: 'card stack' },
+      field('fe-t', 'Tema da formação *', t),
+      h('div', { class: 'fields' }, field('fe-d', 'Data *', d), field('fe-h', 'Hora de início', hr), field('fe-du', 'Duração (horas)', du)),
+      h('div', { class: 'fields' }, field('fe-fo', 'Formador *', fo), field('fe-ca', 'Cargo ou instituição do formador', ca)),
+      h('div', { class: 'fields' }, field('fe-de', 'Destinatários', de), field('fe-lo', 'Local', lo)),
+      field('fe-re', 'Resumo: temas tratados', re)),
+    h('div', { class: 'card stack' }, h('h3', null, 'Manual da formação'), mBox),
+    err,
+    h('div', { class: 'row' },
+      btn('Guardar', { kind: GHT ? '' : 'primary', icon: 'save', onclick: async () => { if (await guardar()) { toast(GHT ? 'Formação guardada. Toque em «Publicar» para chegar aos telemóveis.' : 'Formação guardada neste aparelho.'); tabs(); sair(); } } }),
+      GHT ? btn('Guardar e publicar', { kind: 'primary', icon: 'send', onclick: async () => { if (await guardar()) { fUI = { modo: 'lista', id: null, publicar: true }; tabs(); desenha(); } } }) : null,
+      btn('Cancelar', { kind: 'ghost', onclick: sair })));
+}
+function painelPresencas() {
+  const f = FL.lista.find((x) => x.id === fUI.id);
+  if (!f) { fUI = { modo: 'lista', id: null }; return painelFormacoes(); }
+  const p = FL.presencas[f.id] || { prof: [], outros: [] };
+  const nomes = [...new Map(reg.map((e) => [C.normNome(e.nome), e.nome])).values()];
+  p.prof.forEach((n) => { if (!nomes.some((x) => C.normNome(x) === C.normNome(n))) nomes.push(n); });
+  nomes.sort((a, b) => a.localeCompare(b, 'pt'));
+  const marcados = new Set(p.prof.map(C.normNome));
+  const q = h('input', { type: 'search', placeholder: 'Procurar um nome' }), lista = h('div', { class: 'pres' }), conta = h('p', { class: 'small', role: 'status', style: 'margin:0' });
+  const outros = h('textarea', { rows: '4', placeholder: 'Um nome por linha. Por exemplo, membros da Direção que não têm código.' }); outros.value = p.outros.join('\n');
+  const linhas = () => [...new Map(outros.value.split('\n').map((x) => x.trim().replace(/\s+/g, ' ')).filter(Boolean).map((x) => [C.normNome(x), x])).values()];
+  const total = () => { const n = marcados.size + linhas().length; conta.textContent = `${n} ${n === 1 ? 'presente' : 'presentes'}`; };
+  const pinta = () => {
+    const tq = C.normNome(q.value);
+    const vis = nomes.filter((n) => !tq || C.normNome(n).includes(tq));
+    lista.replaceChildren(...(nomes.length ? vis.map((n) => h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: marcados.has(C.normNome(n)), onchange: (ev) => { if (ev.target.checked) marcados.add(C.normNome(n)); else marcados.delete(C.normNome(n)); total(); } }), n))
+      : [h('p', { class: 'small muted', style: 'margin:0' }, 'Ainda não há professores no registo de acessos deste aparelho. Escreva os nomes em «Outros participantes».')]));
+  };
+  q.addEventListener('input', pinta); outros.addEventListener('input', total);
+  pinta(); total();
+  const todos = (v) => { nomes.forEach((n) => { if (v) marcados.add(C.normNome(n)); else marcados.delete(C.normNome(n)); }); pinta(); total(); };
+  const sair = () => { fUI = { modo: 'lista', id: null }; desenha(); };
+  return h('div', { class: 'stack' },
+    h('div', { class: 'head' }, h('div', null, h('div', { class: 'eyebrow' }, 'Presenças'), h('h1', null, f.titulo)),
+      h('p', null, `${dataPT(f.data)}${f.duracao ? ' · ' + horasTxt(f.duracao) : ''} · ${f.formador}. Esta lista fica só neste aparelho: os professores não a veem.`)),
+    h('div', { class: 'card stack' }, h('div', { class: 'row', style: 'justify-content:space-between' }, h('h3', { style: 'margin:0' }, 'Professores'), conta),
+      nomes.length > 8 ? field('fp-q', 'Procurar', q) : null, lista,
+      nomes.length ? h('div', { class: 'row' }, btn('Marcar todos', { sm: true, onclick: () => todos(true) }), btn('Desmarcar todos', { sm: true, kind: 'ghost', onclick: () => todos(false) })) : null),
+    h('div', { class: 'card stack' }, field('fp-o', 'Outros participantes', outros)),
+    h('div', { class: 'row' },
+      btn('Guardar as presenças', { kind: 'primary', icon: 'users', onclick: () => { FL.presencas[f.id] = { prof: nomes.filter((n) => marcados.has(C.normNome(n))), outros: linhas() }; guardaFL(); toast('Presenças guardadas neste aparelho.'); sair(); } }),
+      btn('Cancelar', { kind: 'ghost', onclick: sair })));
 }
 
 /* ---------- definições */
@@ -763,7 +1141,7 @@ function painelDefinicoes() {
     h('div', { class: 'card stack' }, h('h3', null, 'Chave do ano letivo'),
       h('p', { class: 'small muted' }, `Identificação da chave: ${CFG.chaveId}. Esta chave gera os códigos e abre os manuais cifrados. ${ONLINE ? 'É precisa para abrir esta área noutro aparelho e' : 'É precisa'} para preparar versões novas da aplicação durante este ano letivo; não a envie a ninguém por outro motivo.`),
       h('div', null, btn('Mostrar a chave', { kind: 'ghost', icon: 'key', onclick: () => chave.replaceChildren(h('div', { class: 'codigo', style: 'font-size:18px' }, C.grupos(CHAVE, 5))) })), chave),
-    ONLINE ? COFRE.cartaoSeguranca() : null);
+    ONLINE ? cartaoGithub() : null, ONLINE ? COFRE.cartaoSeguranca() : null);
 }
 
 /* ---------- cofre (versão online): a chave do ano e o registo ficam cifrados neste aparelho com a palavra-passe */
@@ -795,6 +1173,11 @@ const COFRE = (() => {
     CHAVE = dec.decode(await decif(dataKey, v.chave)); KEY = C.b32dec(CHAVE).slice(0, 12);
     const r = LS.get(RK2, null); reg = r ? JSON.parse(dec.decode(await decif(dataKey, r))) : [];
     gravaRegisto = async () => { if (!dataKey) return false; return LS.set(RK2, await cif(dataKey, enc.encode(JSON.stringify(reg)))); };
+    const fl = LS.get(FK, null); FL = fl ? Object.assign(novoFL(), JSON.parse(dec.decode(await decif(dataKey, fl)))) : novoFL();
+    gravaFL = async () => { if (!dataKey) return false; return LS.set(FK, await cif(dataKey, enc.encode(JSON.stringify(FL)))); };
+    const gk = LS.get(GK, null); GHT = gk ? dec.decode(await decif(dataKey, gk)) : '';
+    gravaGHT = async (t) => { if (!dataKey) return false; GHT = t || ''; if (!GHT) { try { localStorage.removeItem(GK); } catch (e) { /* nada */ } return true; } return LS.set(GK, await cif(dataKey, enc.encode(GHT))); };
+    fUI = { modo: 'lista', id: null, publicar: false }; fSitio = { estado: '', quando: 0, assin: '' };
     $('#bloquear').hidden = false; aba = 'novo'; desenha();
   }
   async function guardaCofre(ch, senha, raw) {
@@ -802,7 +1185,8 @@ const COFRE = (() => {
     const v = { v: 1, chaveId: CFG.chaveId, salt: C.b64(salt), wrapP: await cif(await kSenha(senha, salt), raw), wrapK: await cif(await kChave(ch), raw), chave: await cif(dk, enc.encode(ch)) };
     if (!LS.set(VK, v)) throw new Error('armazenamento');
   }
-  function bloquear() { dataRaw = null; dataKey = null; KEY = null; CHAVE = ''; reg = []; rascunho = ''; filtro = { q: '', estado: '' }; gravaRegisto = async () => false; $('#bloquear').hidden = true; $('#toast').replaceChildren(); tela(); }
+  function bloquear() { dataRaw = null; dataKey = null; KEY = null; CHAVE = ''; reg = []; rascunho = ''; filtro = { q: '', estado: '' }; gravaRegisto = async () => false;
+    FL = novoFL(); GHT = ''; gravaFL = async () => false; gravaGHT = async () => false; fUI = { modo: 'lista', id: null, publicar: false }; fSitio = { estado: '', quando: 0, assin: '' }; fPubEstado.replaceChildren(); $('#bloquear').hidden = true; $('#toast').replaceChildren(); tela(); }
   function moldura(...kids) { $('#tabs').replaceChildren(); $('#painel').replaceChildren(h('div', { class: 'cofre stack' }, ...kids, caixaInstalar())); window.scrollTo(0, 0); }
   const senha = (atual) => h('input', { type: 'password', autocomplete: atual ? 'current-password' : 'new-password', placeholder: atual ? 'A sua palavra-passe' : 'Pelo menos 8 carateres' });
   function tela(modo) {

@@ -375,6 +375,16 @@ legend { font-size: 12.5px; font-weight: 700; color: var(--ink-2); padding: 0 4p
 }
 @media (max-width: 400px) { .top .mode { display: none } }
 
+/* formações (lista publicada pela coordenação; manuais descarregados quando o professor os pede) */
+.f-top { display: grid; grid-template-columns: 58px minmax(0, 1fr); gap: 12px; align-items: start }
+.f-tx h3 { margin: 2px 0 0; font-size: 18px; line-height: 1.3 }
+.f-tx > .row { margin-bottom: 4px }
+.f-card { scroll-margin-top: 90px }
+.f-card .kv { margin: 0 }
+.f-resumo p { margin: 0 0 6px; line-height: 1.5 } .f-resumo p:last-child { margin-bottom: 0 }
+.f-card h3, .f-resumo p, .f-card dd { overflow-wrap: anywhere }
+@media (max-width: 560px) { .f-top { grid-template-columns: 50px minmax(0, 1fr); gap: 10px } }
+
 /* entrada: registo, pedido do código, ativação e bloqueio */
 body:not(.ready) > .top, body:not(.ready) > .layout { display: none }
 .gate[hidden] { display: none }
@@ -420,7 +430,7 @@ body:not(.ready) > .top, body:not(.ready) > .layout { display: none }
 <div id="toast" role="status" aria-live="polite"></div>
 <div id="print-root"></div>
 <div id="barra" class="barra" hidden></div>
-<script type="application/json" id="cel-config">{"versao": "1.1.0", "ano": "2026/2027", "chaveId": "1987a8c7", "verificador": "73PuRC8oZMHFamSA3GFE+8HePo5bcPrNmyw7cUkiHSE3TL5rshY=", "dados": "dados.2460e27fab.bin", "contactos": {"whatsapp": "245955252417", "email": "cel.vf.gb@gmail.com"}, "diasSemLigacao": 30}</script>
+<script type="application/json" id="cel-config">{"versao": "1.2.0", "ano": "2026/2027", "chaveId": "1987a8c7", "verificador": "2pczfA1bRiw+NHTrDgEcP8SuxUdvl8BRG1acf4d31JXP9Vr+n7o=", "dados": "dados.2460e27fab.bin", "contactos": {"whatsapp": "245955252417", "email": "cel.vf.gb@gmail.com"}, "diasSemLigacao": 30}</script>
 <script>/* Gerador mínimo de .docx (Word) no navegador — sem bibliotecas externas.
    Blocos: {t:'h', text, level} · {t:'p', text|runs, align, size, before, after, keep, border}
            {t:'list', items:[text|runs], ordered} · {t:'table', rows, widths, header, borders, minH}
@@ -967,7 +977,7 @@ const planable = (it) => it.u || it.f || it.r;
 const VIEWS = [
   { id: 'inicio', label: 'Início' }, { id: 'biblioteca', label: 'Biblioteca' }, { id: 'planos', label: 'Planos de aula' },
   { id: 'provas', label: 'Provas e gabaritos' }, { id: 'banco', label: 'Banco de questões' }, { id: 'ferramentas', label: 'Ferramentas' },
-  { id: 'calendario', label: 'Calendário' }, { id: 'documentos', label: 'Documentos do CEL' }, { id: 'atualizacoes', label: 'Cópias e atualizações' }
+  { id: 'calendario', label: 'Calendário' }, { id: 'documentos', label: 'Documentos do CEL' }, { id: 'formacoes', label: 'Formações' }, { id: 'atualizacoes', label: 'Cópias e atualizações' }
 ];
 const main = $('#main');
 function route() {
@@ -982,7 +992,7 @@ function clearArg(v) { try { history.replaceState(null, '', '#' + v); } catch (e
 function buildNav() {
   const nav = $('#nav'); nav.replaceChildren(h('div', { class: 'nav-label' }, 'Caderno do professor'));
   VIEWS.forEach(v => nav.append(h('button', { type: 'button', 'data-v': v.id, onclick: () => go(v.id) }, h('span', { class: 'mark', 'aria-hidden': 'true' }), v.label)));
-  nav.append(h('div', { class: 'nav-foot' }, `Versão ${C.versao} · ${C.data}`));
+  nav.append(h('div', { class: 'nav-foot' }, PWA && PWA.versao ? `Versão ${PWA.versao}` : `Versão ${C.versao} · ${C.data}`));
 }
 let cleanup = null, lastView = null;
 function render() {
@@ -1033,7 +1043,7 @@ function vInicio() {
     h('section', { class: 'hero' }, bookSvg(), h('div', { class: 'eyebrow' }, 'Jardim de Infância · 1.º ao 4.º ano'), h('h1', null, 'Recursos do Professor'),
       h('p', null, 'Os manuais do CEL num só lugar: estude as unidades e as fichas, prepare planos de aula, faça provas com gabarito e organize o ano letivo. Os documentos descarregam-se em Word, prontos a imprimir.'),
       h('div', { class: 'flagline', 'aria-hidden': 'true' }, h('i'), h('i'), h('i'))),
-    proximasCard(true),
+    proximasCard(true), formInicioBox(),
     h('div', { class: 'card stack' }, h('div', { class: 'eyebrow' }, 'Abrir um manual'),
       h('div', { class: 'row' }, h('div', { class: 'grow', style: 'min-width:240px;max-width:520px' }, sel),
         btn('Abrir', { kind: 'primary', icon: 'book', onclick: () => go('biblioteca', `${pick}~intro`) }),
@@ -1044,7 +1054,8 @@ function vInicio() {
       tile('Avaliar', 'Provas e gabaritos', 'Provas e fichas com as questões dos manuais, cotação, versões A e B e gabarito.', 'provas'),
       tile('Organizar', 'Ferramentas', 'Classificações da turma, planificação do ano letivo, números romanos e tabuada.', 'ferramentas'),
       tile('Consultar', 'Calendário', 'Reuniões, provas, feriados e atividades do ano letivo, com avisos.', 'calendario'),
-      tile('Consultar', 'Documentos do CEL', 'Estatuto, Regulamento Interno, Código de Ética e Plano de Qualidade.', 'documentos')),
+      tile('Consultar', 'Documentos do CEL', 'Estatuto, Regulamento Interno, Código de Ética e Plano de Qualidade.', 'documentos'),
+      tile('Aprender', 'Formações', 'As formações feitas no CEL e os manuais que os formadores disponibilizaram.', 'formacoes')),
     meters,
     h('div', { class: 'card' }, h('div', { class: 'eyebrow' }, 'Onde ficam os meus dados'), h('h3', { style: 'margin-top:6px' }, 'Os seus planos, provas e questões'), note,
       h('div', { class: 'row', style: 'margin-top:10px' }, btn('Cópias e atualizações', { onclick: () => go('atualizacoes') }))));
@@ -1981,6 +1992,7 @@ function toolRomanos() {
 
 /* ============================================================ CÓPIAS E ATUALIZAÇÕES */
 const NOVIDADES = [
+  { v: '1.2', d: '24/10/2026', itens: ['Formações: as formações feitas no CEL, com os manuais que os formadores disponibilizam. Cada manual descarrega-se uma vez, com internet, e depois abre sem internet.'] },
   { v: '1.1', d: '23/10/2026', itens: ['Calendário de atividades 2026/2027, com as próximas atividades no Início e avisos no telemóvel quando uma atividade se aproxima.',
     'Documentos do CEL: Estatuto, Regulamento Interno, Código de Ética e Conduta Profissional e Plano de Qualidade Institucional, com pesquisa.'] },
   { v: '1.0', d: '16/10/2026', itens: ['Os manuais do CEL: 20 do 1.º ao 4.º ano (com as respostas do Manual do Professor) e 15 do Jardim de Infância.',
@@ -2325,16 +2337,171 @@ function docVer(d, art) {
     h('div', { class: 'card doc' }, body));
 }
 
+/* ============================================================ FORMAÇÕES
+   A coordenação publica no sítio da aplicação a lista das formações, cifrada como os manuais. A aplicação lê-a quando há
+   internet e guarda-a no telemóvel. Cada manual de formação só se descarrega quando o professor o pede; depois fica guardado
+   e abre sem internet. As presenças nunca vêm para aqui: ficam só no aparelho do coordenador. */
+const FORM = { lista: null, quando: '' };
+const FCACHE = 'cel-formacoes', FIDX = 'formacoes/indice.bin', FVISTAS = 'cel-formacoes-vistas', FAVIS = 'cel-formacoes-avisadas', FLIDO = 'cel-formacoes-lido';
+const formPode = () => !!(PWA && typeof PWA.decifra === 'function' && window.caches);
+const tamTxt = (n) => !n ? '' : n >= 1048576 ? `${nf1.format(n / 1048576)} MB` : `${Math.max(1, Math.round(n / 1024))} KB`;
+const TIPOS_F = { pdf: 'PDF', doc: 'Word', docx: 'Word', ppt: 'PowerPoint', pptx: 'PowerPoint', xls: 'Excel', xlsx: 'Excel', zip: 'ZIP', jpg: 'Imagem', jpeg: 'Imagem', png: 'Imagem', mp4: 'Vídeo', mp3: 'Áudio' };
+const tipoTxt = (m) => { const e = String(m.nome || '').split('.').pop().toLowerCase(); return TIPOS_F[e] || (e && e.length <= 5 ? e.toUpperCase() : 'Ficheiro'); };
+const dataLonga = (iso) => { const d = dOf(iso); return `${DSEM[d.getDay()]}, ${d.getDate()} de ${MESES[d.getMonth()]} de ${d.getFullYear()}`; };
+const horasTxt = (x) => `${nf1.format(x)} ${x === 1 ? 'hora' : 'horas'}`;
+const absUrl = (p) => new URL(p, location.href).href;
+async function formAbreIndice(bytes) {
+  const j = JSON.parse(new TextDecoder().decode(await PWA.decifra(bytes)));
+  if (!j || !Array.isArray(j.formacoes)) throw new Error('índice das formações');
+  return j;
+}
+function formUsa(j) {
+  FORM.lista = j.formacoes.filter(f => f && f.id && f.titulo && /^\d{4}-\d{2}-\d{2}$/.test(String(f.data))).sort((a, b) => String(b.data).localeCompare(String(a.data)) || String(a.titulo).localeCompare(String(b.titulo)));
+  FORM.quando = j.atualizado || '';
+}
+async function formLocal() {
+  if (FORM.lista) return true;
+  try {
+    const c = await caches.open(FCACHE), r = await c.match(FIDX); if (!r) return false;
+    formUsa(await formAbreIndice(new Uint8Array(await r.arrayBuffer()))); return true;
+  } catch (e) { return false; }
+}
+// lê a lista publicada: 'ok', 'vazio' (ainda não há formações publicadas) ou null (sem internet ou erro)
+async function formAtualiza() {
+  if (!formPode()) return null;
+  const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 15000);
+  try {
+    const r = await fetch(FIDX + '?t=' + Date.now(), { cache: 'no-store', signal: ctl.signal });
+    if (r.status === 404) { LS.set(FLIDO, Date.now()); if (!FORM.lista) FORM.lista = []; return 'vazio'; }
+    if (!r.ok) return null;
+    const b = new Uint8Array(await r.arrayBuffer()), j = await formAbreIndice(b);
+    const c = await caches.open(FCACHE);
+    await c.put(FIDX, new Response(b, { headers: { 'Content-Type': 'application/octet-stream' } }));
+    formUsa(j); LS.set(FLIDO, Date.now());
+    // os manuais que saíram da lista deixam de ocupar espaço no telemóvel
+    const usados = new Set(FORM.lista.filter(f => f.manual && f.manual.ficheiro).map(f => absUrl(f.manual.ficheiro)));
+    for (const k of await c.keys()) { const u = k.url.split('?')[0]; if (u !== absUrl(FIDX) && !usados.has(u)) await c.delete(k); }
+    return 'ok';
+  } catch (e) { return null; } finally { clearTimeout(t); }
+}
+const formNovas = () => { const v = LS.get(FVISTAS, null); if (!v) return []; const s = new Set(v); return (FORM.lista || []).filter(f => !s.has(f.id)); };
+const formMarcaVistas = () => { if (FORM.lista) LS.set(FVISTAS, FORM.lista.map(f => f.id)); };
+async function formGuardados() {
+  try { const c = await caches.open(FCACHE); return new Set((await c.keys()).map(k => k.url.split('?')[0])); } catch (e) { return new Set(); }
+}
+async function formManual(f) {
+  const m = f.manual; if (!m || !m.ficheiro) return false;
+  let c = null, r = null;
+  try { c = await caches.open(FCACHE); r = await c.match(m.ficheiro); } catch (e) { r = null; }
+  if (!r) {
+    if (navigator.onLine === false) { toast('Sem internet. O manual descarrega-se uma vez, com internet; depois abre sem internet.'); return false; }
+    toast(`A descarregar o manual${m.tamanho ? ` (${tamTxt(m.tamanho)})` : ''}…`);
+    let n = null; try { n = await fetch(m.ficheiro); } catch (e) { n = null; }
+    if (!n || !n.ok) { toast('Não foi possível descarregar o manual. Tente mais tarde, com internet.'); return false; }
+    const b = await n.arrayBuffer();
+    try { if (c) await c.put(m.ficheiro, new Response(b, { headers: { 'Content-Type': 'application/octet-stream' } })); } catch (e) { /* sem espaço: abre na mesma */ }
+    r = new Response(b);
+  }
+  let bytes = null;
+  try { bytes = await PWA.decifra(new Uint8Array(await r.arrayBuffer())); } catch (e) { bytes = null; }
+  if (!bytes) { try { if (c) await c.delete(m.ficheiro); } catch (e) { /* nada */ } toast('Este manual não abriu. Toque em «Procurar formações novas» e tente outra vez.'); return false; }
+  await offerFile(m.nome || 'Manual da formação', bytes, m.tipo || 'application/octet-stream');
+  return true;
+}
+function formCard(f, ref, novas, guardados, redraw) {
+  const meta = [f.hora ? `às ${String(f.hora).replace(':', 'h')}` : null, f.duracao ? horasTxt(f.duracao) : null, f.local || null].filter(Boolean);
+  const guardado = f.manual && guardados.has(absUrl(f.manual.ficheiro));
+  const formador = [f.formador, f.cargo].filter(Boolean).join(' — ');
+  return h('article', { class: 'card stack f-card', id: 'f-' + f.id },
+    h('div', { class: 'f-top' }, dataChip(f.data),
+      h('div', { class: 'f-tx' },
+        f.data > ref || novas.has(f.id) ? h('div', { class: 'row', style: 'gap:6px' }, f.data > ref ? h('span', { class: 'chip amber' }, 'Agendada') : null, novas.has(f.id) ? h('span', { class: 'chip ok' }, 'Nova') : null) : null,
+        h('h3', null, f.titulo),
+        h('div', { class: 'cal-meta' }, h('span', null, dataLonga(f.data)), meta.map(x => h('span', null, x))))),
+    formador || f.destinatarios ? h('dl', { class: 'kv' }, formador ? [h('dt', null, 'Formador'), h('dd', null, formador)] : null, f.destinatarios ? [h('dt', null, 'Para'), h('dd', null, f.destinatarios)] : null) : null,
+    f.resumo ? h('div', { class: 'f-resumo' }, String(f.resumo).split(/\n+/).filter(x => x.trim()).map(x => h('p', null, x.trim()))) : null,
+    f.manual ? h('div', { class: 'row' },
+      btn(guardado ? 'Abrir o manual' : 'Descarregar o manual', { kind: 'primary', icon: 'dl', onclick: async (ev) => { const b = ev.currentTarget; b.disabled = true; try { if (await formManual(f) && !guardado) redraw(); } finally { b.disabled = false; } } }),
+      h('span', { class: 'small muted' }, [tipoTxt(f.manual), tamTxt(f.manual.tamanho), guardado ? 'guardado neste telemóvel' : 'descarrega-se uma vez, com internet'].filter(Boolean).join(' · ')))
+      : h('p', { class: 'small muted', style: 'margin:0' }, f.data > ref ? 'Se o formador disponibilizar o manual, aparece aqui depois da formação.' : 'O formador não disponibilizou o manual desta formação.'));
+}
+function vFormacoes(arg) {
+  const head = h('div', { class: 'head' }, h('div', null, h('div', { class: 'eyebrow' }, 'Formação contínua'), h('h1', null, 'Formações')),
+    h('p', null, 'As formações feitas no CEL e os manuais que os formadores disponibilizaram. Cada manual descarrega-se uma vez, com internet; depois abre sem internet.'));
+  if (!formPode()) return h('div', { class: 'view' }, head, h('div', { class: 'empty' }, 'As formações aparecem na aplicação Recursos do Professor instalada no telemóvel.'));
+  const lista = h('div', { class: 'stack' }), estado = h('p', { class: 'small muted', role: 'status', style: 'margin:0' }), resumo = h('div');
+  let vivo = true, procurando = false;
+  const atualizar = btn('Procurar formações novas', { sm: true, icon: 'refresh', onclick: () => procura(true) });
+  async function draw() {
+    if (!vivo) return;
+    const ref = today(), novas = new Set(formNovas().map(f => f.id)), guardados = await formGuardados(), L = FORM.lista;
+    const lido = LS.get(FLIDO, 0);
+    estado.textContent = procurando ? 'A procurar formações novas…' : lido ? `Lista atualizada em ${new Date(lido).toLocaleDateString('pt-PT')} às ${new Date(lido).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })}.` : 'A lista ainda não foi lida neste telemóvel.';
+    if (!L) { put(lista, h('div', { class: 'empty' }, procurando ? 'A procurar as formações…' : 'Ligue a internet e toque em «Procurar formações novas» para ver as formações.')); put(resumo); return; }
+    const feitas = L.filter(f => f.data <= ref), horas = feitas.reduce((s, f) => s + (Number(f.duracao) || 0), 0);
+    put(resumo, L.length ? h('div', { class: 'meters' }, h('div', { class: 'meter' }, h('b', null, String(feitas.length)), h('span', null, feitas.length === 1 ? 'formação feita' : 'formações feitas')),
+      horas ? h('div', { class: 'meter' }, h('b', null, nf1.format(horas)), h('span', null, 'horas de formação')) : null,
+      h('div', { class: 'meter' }, h('b', null, String(L.filter(f => f.manual).length)), h('span', null, 'manuais disponíveis'))) : null);
+    put(lista, L.length ? L.map(f => formCard(f, ref, novas, guardados, draw)) : h('div', { class: 'empty' }, 'Ainda não há formações publicadas pela coordenação.'));
+    if (arg) { const el = document.getElementById('f-' + arg); if (el) requestAnimationFrame(() => el.scrollIntoView({ block: 'start' })); arg = ''; }
+    formMarcaVistas();
+  }
+  async function procura(manual) {
+    if (procurando) return;
+    procurando = true; atualizar.disabled = true; draw();
+    const antes = new Set((FORM.lista || []).map(f => f.id)), r = await formAtualiza();
+    procurando = false; atualizar.disabled = false;
+    if (r === null) { if (manual) toast('Sem internet de momento. Tente mais tarde.'); }
+    else if (manual) { const n = (FORM.lista || []).filter(f => !antes.has(f.id)).length; toast(n ? (n === 1 ? 'Há uma formação nova.' : `Há ${n} formações novas.`) : 'A lista está em dia.'); }
+    draw();
+  }
+  (async () => { await formLocal(); await draw(); if (navigator.onLine !== false && Date.now() - LS.get(FLIDO, 0) > 10 * 60e3) procura(false); })();
+  return { el: h('div', { class: 'view' }, head, h('div', { class: 'card' }, h('div', { class: 'row', style: 'justify-content:space-between' }, estado, atualizar)), resumo, lista), cleanup: () => { vivo = false; } };
+}
+// Início: aviso de formação nova (só depois de a lista ter sido lida neste telemóvel)
+function formInicioBox() {
+  const box = h('div');
+  if (!formPode()) return box;
+  formLocal().then(() => {
+    const n = formNovas(); if (!n.length) return;
+    const f = n[0];
+    put(box, h('div', { class: 'callout' }, icon('book'), h('div', { class: 'stack', style: 'gap:8px' },
+      h('div', null, h('b', null, n.length === 1 ? 'Formação nova' : `${n.length} formações novas`), n.length === 1 ? `${f.titulo} · ${dOf(f.data).toLocaleDateString('pt-PT')}${f.manual ? ' · com manual' : ''}` : n.slice(0, 3).map(x => x.titulo).join(' · ')),
+      h('div', null, btn('Ver as formações', { sm: true, kind: 'primary', onclick: () => go('formacoes', n.length === 1 ? f.id : '') })))));
+  });
+  return box;
+}
+// com internet, de 6 em 6 horas no máximo: lê a lista e avisa uma vez de cada formação nova
+async function formacoesArranque() {
+  if (!formPode()) return;
+  await formLocal();
+  const tenta = async () => {
+    if (navigator.onLine === false || Date.now() - LS.get(FLIDO, 0) < 6 * 3600e3) return;
+    const primeira = !LS.get(FVISTAS, null), r = await formAtualiza();
+    if (r === null) return;
+    if (primeira) { formMarcaVistas(); LS.set(FAVIS, (FORM.lista || []).map(f => f.id)); return; }   // na primeira leitura nada é «novo»
+    const av = new Set(LS.get(FAVIS, [])), nv = formNovas().filter(f => !av.has(f.id));
+    if (nv.length) {
+      LS.set(FAVIS, [...av, ...nv.map(f => f.id)]);
+      toast(nv.length === 1 ? `Formação nova: ${nv[0].titulo}. Veja em «Formações».` : `Há ${nv.length} formações novas. Veja em «Formações».`);
+      if (route().v === 'inicio') render();
+    }
+  };
+  setTimeout(tenta, 2500);
+  window.addEventListener('online', () => setTimeout(tenta, 1500));
+}
+
 /* ============================================================ arranque */
-ICONS.shield = '<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/>';
+ICONS.shield ='<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/>';
 ICONS.bell = '<path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21a2 2 0 0 0 4 0"/>';
 ICONS.back = '<path d="M19 12H5M11 6l-6 6 6 6"/>';
-const VIEWFN = { inicio: vInicio, biblioteca: vBiblioteca, planos: vPlanos, provas: vProvas, banco: vBanco, ferramentas: vFerramentas, calendario: vCalendario, documentos: vDocumentos, atualizacoes: vAtualizacoes };
+const VIEWFN = { inicio: vInicio, biblioteca: vBiblioteca, planos: vPlanos, provas: vProvas, banco: vBanco, ferramentas: vFerramentas, calendario: vCalendario, documentos: vDocumentos, formacoes: vFormacoes, atualizacoes: vAtualizacoes };
 Store.init(); buildNav(); modeChip();
 Store.on(k => { if (k === '*') modeChip(); });
 window.addEventListener('hashchange', () => { freshNav(); render(); });
 render();
 avisosArranque();
+formacoesArranque();
 }
 if (document.getElementById('cel-dados')) boot(); else window.CEL_BOOT = boot;
 })();
@@ -2549,7 +2716,8 @@ async function abrirApp(act, key) {
   try { dados = await carregaDados(key); }
   catch (e) { telaErro('Não foi possível abrir os manuais', 'Feche a aplicação e abra-a outra vez. Se a aplicação ainda não terminou de se instalar, abra-a uma vez com internet.'); return false; }
   window.__CEL_DATA = dados;
-  window.__CEL_PWA = { nome: act.p.n, aparelho: C.grupos(aparelho()), validade: C.dataPT(act.dias), versao: CFG.versao, verificar: verificarAgora };
+  // decifra também as formações publicadas pela coordenação (a chave fica só aqui, na memória)
+  window.__CEL_PWA = { nome: act.p.n, aparelho: C.grupos(aparelho()), validade: C.dataPT(act.dias), versao: CFG.versao, verificar: verificarAgora, decifra: (b) => C.decifra(key, b) };
   gate.hidden = true; gate.replaceChildren(); document.body.classList.add('ready');
   if (!booted) { booted = true; window.CEL_BOOT(); }
   barra();
