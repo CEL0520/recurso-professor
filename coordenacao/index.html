@@ -432,7 +432,7 @@ ol.passos.small li { line-height: 1.45 }
   <div id="painel"></div>
 </div>
 <div id="toast" role="status" aria-live="polite"></div>
-<script type="application/json" id="cfg">{"ano": "2026/2027", "chaveId": "1987a8c7", "validade": "2027-07-31", "contactos": {"whatsapp": "245955252417", "email": "cel.vf.gb@gmail.com"}, "diasSemLigacao": 30, "url": "https://cel0520.github.io/recurso-professor/", "repo": "CEL0520/recurso-professor", "modo": "online"}</script>
+<script type="application/json" id="cfg">{"ano": "2026/2027", "chaveId": "1987a8c7", "validade": "2027-07-31", "contactos": {"whatsapp": "245955252417", "email": "cel.vf.gb@gmail.com"}, "diasSemLigacao": 30, "url": "https://cel0520.github.io/recurso-professor/", "repo": "CEL0520/recurso-professor", "repoSinc": "CEL0520/cel-coordenacao", "modo": "online"}</script>
 <script>/* Códigos de acesso dos Recursos do Professor (CEL-RP1) — partilhado pela aplicação e pela ferramenta do coordenador.
    Código (24 carateres) = validade (2 bytes, dias desde 01/01/2025) + série (1 byte, ao acaso) + chave do ano (12 bytes)
    misturada com HMAC(aparelho | validade | série | nome+contacto). Só abre os manuais no aparelho e com os dados para
@@ -557,7 +557,7 @@ let reg = ONLINE ? [] : LS.get(RK, []);
 const def = Object.assign({ url: CFG.url || '', validade: CFG.validade, convite: '' }, LS.get(SK, {}));
 if (!def.url && CFG.url) def.url = CFG.url;
 let gravaRegisto = async () => LS.set(RK, reg);
-const guarda = () => { Promise.resolve(gravaRegisto()).then((ok) => { if (ok === false) toast('Não foi possível guardar o registo. Exporte uma cópia.'); }); };
+const guarda = () => { Promise.resolve(gravaRegisto()).then((ok) => { if (ok === false) toast('Não foi possível guardar o registo. Exporte uma cópia.'); }); agendaSinc(); };
 const guardaDef = () => LS.set(SK, def);
 const hojeISO = () => { const d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 10); };
 const estadoDe = (e) => e.estado === 'ativo' && e.validade < hojeISO() ? 'expirado' : e.estado;
@@ -706,11 +706,12 @@ function painelAcessos() {
   return h('div', { class: 'stack' },
     h('div', { class: 'head' }, h('div', null, h('div', { class: 'eyebrow' }, 'Registo'), h('h1', null, 'Acessos')),
       h('p', null, 'Quem tem código, em que telemóvel e até quando. «Suspender» bloqueia até repor; «Retirar» apaga a ativação no telemóvel. As alterações chegam aos telemóveis depois de publicar a lista.')),
+    ONLINE ? (pintaSinc(), sincEl) : null,
     cont,
     pendente() ? h('div', { class: 'callout warn' }, h('div', null, h('b', null, 'Há alterações por publicar.'), 'Vá a «Publicar» para as enviar para o sítio da aplicação.')) : null,
     h('div', { class: 'card stack' }, h('div', { class: 'fields' }, field('f-q', 'Procurar', q), field('f-est', 'Estado', sel)), lista),
     h('div', { class: 'card stack' }, h('h3', null, 'Cópia do registo'),
-      h('p', { class: 'small muted' }, (ONLINE ? 'O registo fica guardado só neste aparelho, cifrado com a sua palavra-passe.' : 'O registo fica guardado só neste computador, neste navegador.') + ' Exporte uma cópia de vez em quando e guarde-a num sítio seguro: tem dados pessoais dos professores.'),
+      h('p', { class: 'small muted' }, (ONLINE && GHT ? 'O registo fica cifrado neste aparelho e no repositório privado da coordenação, igual em todos os aparelhos ligados.' : ONLINE ? 'O registo fica guardado só neste aparelho, cifrado com a sua palavra-passe.' : 'O registo fica guardado só neste computador, neste navegador.') + ' Exporte uma cópia de vez em quando e guarde-a num sítio seguro: tem dados pessoais dos professores.'),
       h('div', { class: 'row' },
         btn('Excel (.csv)', { icon: 'dl', onclick: () => descarrega(`Acessos_CEL_${hojeISO()}.csv`, csv(), 'text/csv') }),
         btn('Cópia de segurança (.json)', { icon: 'dl', onclick: () => descarrega(`Registo_Acessos_CEL_${hojeISO()}.json`, JSON.stringify({ app: 'cel-codigos', chaveId: CFG.chaveId, exportado: new Date().toISOString(), registo: reg }, null, 1), 'application/json') }),
@@ -775,8 +776,10 @@ let GHT = '', gravaGHT = async () => false;
 const tamTxt = (n) => !n ? '0 KB' : n >= 1048576 ? `${(n / 1048576).toLocaleString('pt-PT', { maximumFractionDigits: 1 })} MB` : `${Math.max(1, Math.round(n / 1024))} KB`;
 const horasTxt = (x) => `${Number(x).toLocaleString('pt-PT', { maximumFractionDigits: 1 })} ${Number(x) === 1 ? 'hora' : 'horas'}`;
 const donoRepo = () => String(CFG.repo || '').split('/')[0], nomeRepo = () => String(CFG.repo || '').split('/')[1] || '';
+const nomeSinc = () => String(CFG.repoSinc || '').split('/')[1] || '';
+const tipoAparelho = () => /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent) ? 'telemóvel' : 'computador';
 const diasChave = () => Math.max(30, Math.min(366, Math.ceil((Date.parse((CFG.validade || '') + 'T23:59:59Z') - Date.now()) / 864e5) || 366));
-const urlChave = () => 'https://github.com/settings/personal-access-tokens/new?' + new URLSearchParams({ name: 'Coordenação CEL', description: 'Publicar as formações e a lista de acessos dos Recursos do Professor, a partir da área da coordenação.', target_name: donoRepo(), expires_in: String(diasChave()), contents: 'write' }).toString();
+const urlChave = () => 'https://github.com/settings/personal-access-tokens/new?' + new URLSearchParams({ name: `Coordenação CEL · ${tipoAparelho()}`, description: 'Publicar as formações e a lista de acessos dos Recursos do Professor e sincronizar o registo da coordenação entre aparelhos.', target_name: donoRepo(), expires_in: String(diasChave()), contents: 'write' }).toString();
 const GH = {
   async api(metodo, caminho, corpo, chave) {
     let r;
@@ -826,7 +829,7 @@ function cartaoGithub() {
   if (GHT) {
     return h('div', { class: 'card stack' }, h('h3', null, 'Ligação ao GitHub'),
       h('div', { class: 'row', style: 'gap:8px' }, h('span', { class: 'estado ativo' }, 'Ligada'), h('span', { class: 'small' }, `Esta área publica diretamente no repositório ${CFG.repo}.`)), msg,
-      h('div', { class: 'row' }, btn('Testar a ligação', { sm: true, icon: 'refresh', onclick: async () => { msg.textContent = 'A testar…'; const e = await testaGH(GHT); msg.textContent = e || 'A ligação funciona: pode publicar.'; } }),
+      h('div', { class: 'row' }, btn('Testar a ligação', { sm: true, icon: 'refresh', onclick: async () => { msg.textContent = 'A testar…'; const e = await testaGH(GHT); const es = e ? null : await testaSinc(GHT); msg.textContent = e || es || 'A ligação funciona: pode publicar, e o registo sincroniza-se com os outros aparelhos.'; } }),
         btn('Apagar a chave deste aparelho', { sm: true, kind: 'ghost', icon: 'x', onclick: async () => { await gravaGHT(''); toast('Chave do GitHub apagada deste aparelho.'); desenha(); } })),
       h('p', { class: 'tiny' }, 'A chave fica cifrada neste aparelho com a sua palavra-passe e só dá acesso ao repositório da aplicação. Se perder o telemóvel, apague-a também no GitHub: Settings → Developer settings → Personal access tokens.'));
   }
@@ -839,13 +842,14 @@ function cartaoGithub() {
     const e = await testaGH(t); ok.disabled = false;
     if (e) { msg.textContent = e; return; }
     if (!(await gravaGHT(t))) { msg.textContent = 'Não foi possível guardar a chave neste aparelho.'; return; }
-    inp.value = ''; toast('Ligação ao GitHub guardada.'); tabs(); desenha();
+    const es = await testaSinc(t);
+    inp.value = ''; toast(es ? 'Ligação ao GitHub guardada. ' + es : 'Ligação ao GitHub guardada. O registo vai sincronizar-se com os outros aparelhos.'); tabs(); desenha(); sincroniza();
   });
   return h('div', { class: 'card stack' }, h('h3', null, 'Ligação ao GitHub'),
     h('p', { class: 'small' }, 'Para publicar com um toque, esta área precisa de uma chave do GitHub só para a aplicação. Cria-se uma vez por ano letivo:'),
     h('ol', { class: 'passos small' },
       h('li', null, 'Toque em «Criar a chave no GitHub» e entre na conta ', h('b', null, donoRepo()), ', se for preciso.'),
-      h('li', null, 'Em «Repository access», escolha «Only select repositories» e depois ', h('b', null, nomeRepo()), '.'),
+      h('li', null, 'Em «Repository access», escolha «Only select repositories» e depois ', h('b', null, nomeRepo()), nomeSinc() ? [' e ', h('b', null, nomeSinc()), ' (os dois)'] : null, '.'),
       h('li', null, 'Em «Permissions», confirme que aparece «Contents: Read and write». Se não aparecer, toque em «Add permissions», escolha «Contents» e depois «Read and write».'),
       h('li', null, 'Toque em «Generate token» (e outra vez, para confirmar) e copie a chave. Começa por github_pat_.'),
       h('li', null, 'Volte aqui, cole a chave e toque em «Guardar a chave».')),
@@ -860,12 +864,13 @@ function cartaoGithub() {
 const FK = 'cel-coord-formacoes-' + CFG.chaveId;
 const novoFL = () => ({ v: 1, lista: [], presencas: {}, base: '' });
 let FL = novoFL(), gravaFL = async () => false;
-const guardaFL = () => { Promise.resolve(gravaFL()).then((ok) => { if (ok === false) toast('Não foi possível guardar as formações neste aparelho.'); }); };
+const guardaFL = () => { Promise.resolve(gravaFL()).then((ok) => { if (ok === false) toast('Não foi possível guardar as formações neste aparelho.'); }); agendaSinc(); };
 const CAMPOS_F = ['id', 'titulo', 'data', 'hora', 'duracao', 'local', 'formador', 'cargo', 'destinatarios', 'resumo', 'manual'];   // só estes campos vão para o sítio
 const publicoF = (f) => { const o = {}; for (const k of CAMPOS_F) if (f[k] != null && f[k] !== '') o[k] = k === 'manual' ? { ficheiro: f.manual.ficheiro, nome: f.manual.nome, tipo: f.manual.tipo, tamanho: f.manual.tamanho } : f[k]; return o; };
 const ordemF = (l) => l.slice().sort((a, b) => String(a.data).localeCompare(String(b.data)) || String(a.id).localeCompare(String(b.id)));
 const assinF = (l) => JSON.stringify(ordemF(l).map(publicoF));
 const pendenteF = () => assinF(FL.lista) !== FL.base;
+const presDe = (id) => { const p = FL.presencas[id]; return p && !p.apagado ? { prof: p.prof || [], outros: p.outros || [] } : { prof: [], outros: [] }; };
 const MIMES = { pdf: 'application/pdf', doc: 'application/msword', docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', ppt: 'application/vnd.ms-powerpoint',
   pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation', xls: 'application/vnd.ms-excel', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', zip: 'application/zip', jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', mp4: 'video/mp4', mp3: 'audio/mpeg' };
 const mimeDe = (nome) => MIMES[String(nome).split('.').pop().toLowerCase()] || 'application/octet-stream';
@@ -943,7 +948,7 @@ function painelFormacoes() {
   const publicar = btn(fPublicando ? 'A publicar…' : 'Publicar', { kind: 'primary', icon: 'send', disabled: !GHT || !pend || fPublicando });
   publicar.addEventListener('click', () => publicaF(publicar));
   const lista = FL.lista.slice().sort((a, b) => String(b.data).localeCompare(String(a.data)));
-  const nPres = (f) => { const p = FL.presencas[f.id]; return p ? p.prof.length + p.outros.length : 0; };
+  const nPres = (f) => { const p = presDe(f.id); return p.prof.length + p.outros.length; };
   const item = (f) => {
     const conf = h('span'), np = nPres(f);
     return h('div', { class: 'item' }, h('div', { class: 'grow stack', style: 'gap:2px' },
@@ -954,7 +959,7 @@ function painelFormacoes() {
         btn('Editar', { sm: true, icon: 'pen', onclick: () => { fPubEstado.replaceChildren(); fUI = { modo: 'editar', id: f.id }; desenha(); } }),
         btn('Presenças', { sm: true, icon: 'users', onclick: () => { fUI = { modo: 'presencas', id: f.id }; desenha(); } }),
         btn('Apagar', { sm: true, kind: 'ghost', icon: 'x', onclick: () => conf.replaceChildren(h('span', { class: 'confirm' }, 'Apagar esta formação e as presenças? Sai da aplicação dos professores quando publicar.',
-          btn('Sim, apagar', { sm: true, kind: 'warn', onclick: () => { FL.lista = FL.lista.filter((x) => x.id !== f.id); delete FL.presencas[f.id]; guardaFL(); if (f.manual) IDB.del(f.manual.ficheiro).catch(() => {}); toast('Formação apagada. Publique para a tirar da aplicação dos professores.'); tabs(); desenha(); } }),
+          btn('Sim, apagar', { sm: true, kind: 'warn', onclick: () => { FL.lista = FL.lista.filter((x) => x.id !== f.id); FL.presencas[f.id] = { apagado: true, alterado: new Date().toISOString() }; guardaFL(); if (f.manual) IDB.del(f.manual.ficheiro).catch(() => {}); toast('Formação apagada. Publique para a tirar da aplicação dos professores.'); tabs(); desenha(); } }),
           btn('Cancelar', { sm: true, onclick: () => conf.replaceChildren() }))) }),
         conf));
   };
@@ -970,8 +975,9 @@ function painelFormacoes() {
         let n = 0;
         d.formacoes.forEach((f) => { if (f && f.id && f.titulo && !FL.lista.some((x) => x.id === f.id)) { FL.lista.push(f); n++; } });
         Object.entries(d.presencas || {}).forEach(([id, p]) => {
-          const a = FL.presencas[id] || { prof: [], outros: [] }, junta = (x, y) => [...new Map([...x, ...(y || [])].map((s) => [C.normNome(s), s])).values()];
-          FL.presencas[id] = { prof: junta(a.prof, p.prof), outros: junta(a.outros, p.outros) };
+          if (!p || p.apagado) return;
+          const a = presDe(id), junta = (x, y) => [...new Map([...(x || []), ...(y || [])].map((s) => [C.normNome(s), s])).values()];
+          FL.presencas[id] = { prof: junta(a.prof, p.prof), outros: junta(a.outros, p.outros), alterado: new Date().toISOString() };
         });
         guardaFL(); tabs(); desenha(); toast(`Cópia importada: ${n} ${n === 1 ? 'formação nova' : 'formações novas'} e as presenças.`);
       } catch (e) { toast('O ficheiro tem um erro e não foi importado.'); }
@@ -983,7 +989,7 @@ function painelFormacoes() {
     const q2 = (s) => /[;"\n]/.test(String(s)) ? `"${String(s).replace(/"/g, '""')}"` : String(s), num = (x) => String(x || '').replace('.', ',');
     const L = [['Formação', 'Data', 'Duração (horas)', 'Formador', 'Participante', 'Participou como']], tot = new Map();
     ordemF(FL.lista).forEach((f) => {
-      const p = FL.presencas[f.id] || { prof: [], outros: [] };
+      const p = presDe(f.id);
       [...p.prof.map((n) => [n, 'Professor(a) com código']), ...p.outros.map((n) => [n, 'Outro participante'])].forEach(([n, t]) => {
         L.push([f.titulo, dataPT(f.data), num(f.duracao), f.formador, n, t]);
         const k = C.normNome(n), x = tot.get(k) || { n, f: 0, h: 0 }; x.f++; x.h += Number(f.duracao) || 0; tot.set(k, x);
@@ -1089,7 +1095,7 @@ function painelFormEditar() {
 function painelPresencas() {
   const f = FL.lista.find((x) => x.id === fUI.id);
   if (!f) { fUI = { modo: 'lista', id: null }; return painelFormacoes(); }
-  const p = FL.presencas[f.id] || { prof: [], outros: [] };
+  const p = presDe(f.id);
   const nomes = [...new Map(reg.map((e) => [C.normNome(e.nome), e.nome])).values()];
   p.prof.forEach((n) => { if (!nomes.some((x) => C.normNome(x) === C.normNome(n))) nomes.push(n); });
   nomes.sort((a, b) => a.localeCompare(b, 'pt'));
@@ -1116,8 +1122,109 @@ function painelPresencas() {
       nomes.length ? h('div', { class: 'row' }, btn('Marcar todos', { sm: true, onclick: () => todos(true) }), btn('Desmarcar todos', { sm: true, kind: 'ghost', onclick: () => todos(false) })) : null),
     h('div', { class: 'card stack' }, field('fp-o', 'Outros participantes', outros)),
     h('div', { class: 'row' },
-      btn('Guardar as presenças', { kind: 'primary', icon: 'users', onclick: () => { FL.presencas[f.id] = { prof: nomes.filter((n) => marcados.has(C.normNome(n))), outros: linhas() }; guardaFL(); toast('Presenças guardadas neste aparelho.'); sair(); } }),
+      btn('Guardar as presenças', { kind: 'primary', icon: 'users', onclick: () => { FL.presencas[f.id] = { prof: nomes.filter((n) => marcados.has(C.normNome(n))), outros: linhas(), alterado: new Date().toISOString() }; guardaFL(); toast('Presenças guardadas neste aparelho.'); sair(); } }),
       btn('Cancelar', { kind: 'ghost', onclick: sair })));
+}
+
+/* ---------- sincronização entre aparelhos (só na área online)
+   O registo dos códigos e as presenças das formações ficam também num repositório PRIVADO do GitHub, cifrados.
+   Cada aparelho junta o que lá está com o que tem e volta a guardar; em cada código e em cada formação, ganha a
+   alteração mais recente. Sem internet, tudo continua a funcionar neste aparelho e junta-se depois. */
+const SINC = { estado: '', quando: 0, erro: '', aCorrer: false, outraVez: false, timer: null, sessao: 0 };
+const repoSinc = () => CFG.repoSinc || '';
+const sincEl = h('p', { class: 'small', role: 'status', style: 'margin:0' });
+async function chaveSinc() { const d = new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode('CEL-COORD|sinc|' + CHAVE))); return crypto.subtle.importKey('raw', d, 'AES-GCM', false, ['encrypt', 'decrypt']); }
+async function cifraSinc(bytes) { const iv = crypto.getRandomValues(new Uint8Array(12)); return juntaB(iv, new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, await chaveSinc(), bytes))); }
+async function decifraSinc(b) { return new Uint8Array(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b.slice(0, 12) }, await chaveSinc(), b.slice(12))); }
+const tReg = (e) => String(e.alterado || e.emitido || '');
+const ordReg = (l) => l.slice().sort((a, b) => String(b.emitido).localeCompare(String(a.emitido)) || String(a.codigo).localeCompare(String(b.codigo)));
+function juntaReg(a, b) {
+  const m = new Map();
+  for (const e of [...(a || []), ...(b || [])]) { if (!e || !e.codigo) continue; const x = m.get(e.codigo); if (!x || tReg(e) > tReg(x)) m.set(e.codigo, e); }
+  return ordReg([...m.values()]);
+}
+function juntaPres(a, b) {
+  const o = Object.assign({}, a || {});
+  for (const [k, v] of Object.entries(b || {})) { const x = o[k]; if (v && (!x || String(v.alterado || '') > String(x.alterado || ''))) o[k] = v; }
+  return o;
+}
+const canon = (o) => JSON.stringify(Object.keys(o || {}).sort().map((k) => [k, o[k]]));
+const igualReg = (a, b) => JSON.stringify(ordReg(a || [])) === JSON.stringify(ordReg(b || []));
+function agendaSinc(ms = 1500) { if (!ONLINE || !GHT || !repoSinc()) return; clearTimeout(SINC.timer); SINC.timer = setTimeout(() => sincroniza(), ms); }
+function paraSinc() { clearTimeout(SINC.timer); SINC.sessao++; SINC.estado = ''; SINC.quando = 0; SINC.erro = ''; SINC.outraVez = false; pintaSinc(); }
+function pintaSinc() {
+  if (!ONLINE) { sincEl.textContent = ''; return; }
+  const hora = (t) => new Date(t).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' });
+  sincEl.textContent = !GHT ? 'Este aparelho ainda não sincroniza com os outros: guarde a chave do GitHub em «Formações» → «Ligação ao GitHub».'
+    : SINC.estado === 'a sincronizar' ? 'A sincronizar com os outros aparelhos…'
+      : SINC.estado === 'ok' ? `Registo partilhado com os outros aparelhos · sincronizado às ${hora(SINC.quando)}.`
+        : SINC.estado === 'erro' ? `Sem sincronização: ${SINC.erro}`
+          : 'O registo sincroniza-se com os outros aparelhos sempre que há internet.';
+  sincEl.style.color = SINC.estado === 'erro' ? 'var(--danger)' : 'var(--ink-2)';
+}
+// confirma se a lista de acessos publicada (talvez por outro aparelho) já é a deste registo
+async function confirmaPublicada() {
+  try {
+    const L = listaPublicar(), r = await fetch(sitio() + 'acessos.json?t=' + Date.now(), { cache: 'no-store' }), j = await r.json();
+    if (JSON.stringify([(j.suspensos || []).slice().sort(), (j.retirados || []).slice().sort()]) === L.assin) { LS.set(PK, L.assin); tabs(); }
+  } catch (e) { /* sem rede */ }
+}
+async function testaSinc(chave) {
+  if (!repoSinc()) return null;
+  try { await GH.api('GET', `/repos/${repoSinc()}`, null, chave); return null; }
+  catch (e) { return e && (e.status === 403 || e.status === 404) ? `A chave ainda não tem acesso ao repositório privado ${nomeSinc()} (ou ele ainda não existe): o registo não se sincroniza.` : GH.erro(e); }
+}
+async function sincroniza() {
+  if (!ONLINE || !GHT || !repoSinc() || !CHAVE) return null;
+  if (SINC.aCorrer) { SINC.outraVez = true; return null; }
+  const sessao = SINC.sessao, viva = () => sessao === SINC.sessao;
+  SINC.aCorrer = true; SINC.estado = 'a sincronizar'; pintaSinc();
+  let mudouAqui = false;
+  try {
+    for (let t = 0; ; t++) {
+      let remoto = null, sha = null;
+      try {
+        const r = await GH.api('GET', `/repos/${repoSinc()}/contents/registo.bin`);
+        if (!viva()) return null;
+        sha = r.sha; remoto = JSON.parse(new TextDecoder().decode(await decifraSinc(C.unb64(String(r.content || '').replace(/\s/g, '')))));
+      } catch (e) { if (e.status !== 404) throw e; }
+      if (!viva()) return null;
+      if (remoto && remoto.chaveId !== CFG.chaveId) remoto = null;   // registo de outro ano letivo: não se mistura
+      const regM = juntaReg(reg, remoto ? remoto.registo : []), presM = juntaPres(FL.presencas, remoto ? remoto.presencas : {});
+      if (!igualReg(regM, reg)) { reg = regM; await gravaRegisto(); mudouAqui = true; }
+      if (canon(presM) !== canon(FL.presencas)) { FL.presencas = presM; await gravaFL(); mudouAqui = true; }
+      if (remoto && igualReg(remoto.registo, regM) && canon(remoto.presencas) === canon(presM)) break;   // o repositório já tem tudo
+      const bytes = await cifraSinc(new TextEncoder().encode(JSON.stringify({ v: 1, app: 'cel-coordenacao', chaveId: CFG.chaveId, atualizado: new Date().toISOString(), registo: regM, presencas: presM })));
+      if (!viva()) return null;
+      try { await GH.api('PUT', `/repos/${repoSinc()}/contents/registo.bin`, Object.assign({ message: `Registo da coordenação (${tipoAparelho()})`, content: C.b64(bytes) }, sha ? { sha } : {})); break; }
+      catch (e) { if ((e.status === 409 || e.status === 422) && t < 3) continue; throw e; }   // outro aparelho guardou entretanto: lê outra vez e junta
+    }
+    if (!viva()) return null;
+    SINC.estado = 'ok'; SINC.quando = Date.now(); SINC.erro = '';
+  } catch (e) {
+    if (!viva()) return null;
+    SINC.estado = 'erro';
+    SINC.erro = e && e.tipo === 'rede' ? 'sem internet de momento; tenta outra vez quando houver rede.'
+      : e && (e.status === 403 || e.status === 404) ? `o repositório privado ${nomeSinc()} ainda não existe, ou a chave do GitHub deste aparelho não tem acesso a ele.`
+        : e && e.status === 401 ? 'a chave do GitHub deste aparelho já não é válida.' : 'o GitHub não respondeu; tenta outra vez daqui a pouco.';
+  } finally {
+    SINC.aCorrer = false;
+    if (viva()) { pintaSinc(); if (mudouAqui) { tabs(); if (aba === 'acessos' || (aba === 'formacoes' && fUI.modo === 'lista')) desenha(); confirmaPublicada(); } }
+    if (SINC.outraVez) { SINC.outraVez = false; agendaSinc(300); }
+  }
+  return SINC.estado;
+}
+function cartaoSinc() {
+  pintaSinc();
+  return h('div', { class: 'card stack' }, h('h3', null, 'Sincronização entre aparelhos'),
+    h('p', { class: 'small muted' }, `O registo dos códigos e as presenças das formações ficam também no repositório privado ${repoSinc()}, cifrados. Assim, o computador e o telemóvel da coordenação têm a mesma lista.`),
+    sincEl,
+    h('div', { class: 'row' }, btn('Sincronizar agora', { sm: true, icon: 'refresh', disabled: !GHT, onclick: () => sincroniza() })),
+    h('details', null, h('summary', { class: 'small', style: 'cursor:pointer' }, 'Como ligar um aparelho à sincronização'),
+      h('ol', { class: 'passos small', style: 'margin-top:8px' },
+        h('li', null, 'No GitHub, crie uma vez o repositório privado ', h('b', null, nomeSinc()), ' (botão +, «New repository», «Private»).'),
+        h('li', null, 'Em cada aparelho, crie a chave do GitHub com os dois repositórios, ', h('b', null, nomeRepo()), ' e ', h('b', null, nomeSinc()), ', em «Only select repositories».'),
+        h('li', null, 'Guarde essa chave na área da coordenação do aparelho, em «Ligação ao GitHub». Se o aparelho já tinha outra chave, toque antes em «Apagar a chave deste aparelho».'))));
 }
 
 /* ---------- definições */
@@ -1141,7 +1248,7 @@ function painelDefinicoes() {
     h('div', { class: 'card stack' }, h('h3', null, 'Chave do ano letivo'),
       h('p', { class: 'small muted' }, `Identificação da chave: ${CFG.chaveId}. Esta chave gera os códigos e abre os manuais cifrados. ${ONLINE ? 'É precisa para abrir esta área noutro aparelho e' : 'É precisa'} para preparar versões novas da aplicação durante este ano letivo; não a envie a ninguém por outro motivo.`),
       h('div', null, btn('Mostrar a chave', { kind: 'ghost', icon: 'key', onclick: () => chave.replaceChildren(h('div', { class: 'codigo', style: 'font-size:18px' }, C.grupos(CHAVE, 5))) })), chave),
-    ONLINE ? cartaoGithub() : null, ONLINE ? COFRE.cartaoSeguranca() : null);
+    ONLINE ? cartaoGithub() : null, ONLINE ? cartaoSinc() : null, ONLINE ? COFRE.cartaoSeguranca() : null);
 }
 
 /* ---------- cofre (versão online): a chave do ano e o registo ficam cifrados neste aparelho com a palavra-passe */
@@ -1179,6 +1286,7 @@ const COFRE = (() => {
     gravaGHT = async (t) => { if (!dataKey) return false; GHT = t || ''; if (!GHT) { try { localStorage.removeItem(GK); } catch (e) { /* nada */ } return true; } return LS.set(GK, await cif(dataKey, enc.encode(GHT))); };
     fUI = { modo: 'lista', id: null, publicar: false }; fSitio = { estado: '', quando: 0, assin: '' };
     $('#bloquear').hidden = false; aba = 'novo'; desenha();
+    setTimeout(() => sincroniza(), 400);
   }
   async function guardaCofre(ch, senha, raw) {
     const salt = rnd(16), dk = await kRaw(raw);
@@ -1186,7 +1294,7 @@ const COFRE = (() => {
     if (!LS.set(VK, v)) throw new Error('armazenamento');
   }
   function bloquear() { dataRaw = null; dataKey = null; KEY = null; CHAVE = ''; reg = []; rascunho = ''; filtro = { q: '', estado: '' }; gravaRegisto = async () => false;
-    FL = novoFL(); GHT = ''; gravaFL = async () => false; gravaGHT = async () => false; fUI = { modo: 'lista', id: null, publicar: false }; fSitio = { estado: '', quando: 0, assin: '' }; fPubEstado.replaceChildren(); $('#bloquear').hidden = true; $('#toast').replaceChildren(); tela(); }
+    FL = novoFL(); GHT = ''; gravaFL = async () => false; gravaGHT = async () => false; fUI = { modo: 'lista', id: null, publicar: false }; fSitio = { estado: '', quando: 0, assin: '' }; fPubEstado.replaceChildren(); paraSinc(); $('#bloquear').hidden = true; $('#toast').replaceChildren(); tela(); }
   function moldura(...kids) { $('#tabs').replaceChildren(); $('#painel').replaceChildren(h('div', { class: 'cofre stack' }, ...kids, caixaInstalar())); window.scrollTo(0, 0); }
   const senha = (atual) => h('input', { type: 'password', autocomplete: atual ? 'current-password' : 'new-password', placeholder: atual ? 'A sua palavra-passe' : 'Pelo menos 8 carateres' });
   function tela(modo) {
@@ -1248,7 +1356,9 @@ const COFRE = (() => {
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'hidden') escondida = Date.now();
       else if (dataKey && escondida && Date.now() - escondida > 10 * 60e3) bloquear();
+      if (document.visibilityState === 'visible' && dataKey && Date.now() - SINC.quando > 60e3) sincroniza();
     });
+    window.addEventListener('online', () => { if (dataKey) sincroniza(); });
     if (!window.crypto || !crypto.subtle) { $('#painel').replaceChildren(h('div', { class: 'callout danger' }, h('div', null, h('b', null, 'Abra esta área no Chrome, pelo endereço https.'), 'Este navegador não consegue proteger a chave.'))); return; }
     tela();
   }
