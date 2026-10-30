@@ -415,8 +415,29 @@ body:not(.ready) > .top, body:not(.ready) > .layout { display: none }
 .g-wait { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 48px 0; color: var(--ink-2) }
 .g-spin { width: 38px; height: 38px; border-radius: 50%; border: 4px solid var(--line); border-top-color: var(--amber); animation: gspin 0.9s linear infinite }
 @keyframes gspin { to { transform: rotate(360deg) } }
-.g-install { border: 1.5px dashed var(--line-2); border-radius: var(--r); padding: 14px; display: flex; flex-direction: column; gap: 8px; margin-top: 6px }
-.g-install p { margin: 0; color: var(--ink-2); font-size: 14px }
+/* instalar no ecrã do telemóvel: botão no cimo da página e pedido na primeira vez */
+.b-instalar { margin-left: auto; flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 38px; padding: 6px 14px 6px 11px; border: 0; border-radius: 999px;
+  background: var(--amber); color: var(--amber-ink); font: inherit; font-size: 14.5px; font-weight: 700; line-height: 1; white-space: nowrap; cursor: pointer }
+.b-instalar svg { width: 18px; height: 18px; flex: none }
+.b-instalar[hidden] { display: none }
+.b-instalar:focus-visible { outline: 3px solid var(--brand-ink); outline-offset: 2px }
+.top .b-instalar { margin-left: 10px }
+@media (max-width: 400px) { .top .b-instalar { margin-left: auto } }
+/* telemóveis estreitos: com o botão no cimo, o nome da escola sai da faixa (como no cimo da aplicação) */
+@media (max-width: 420px) { .g-top:has(.b-instalar:not([hidden])) span { display: none } }
+@media (max-width: 360px) { .g-top { gap: 10px } .g-top img { height: 38px } .g-top b { font-size: 18px } .b-instalar { padding: 6px 12px 6px 9px; font-size: 14px } }
+.i-dlg { border: 0; padding: 0; border-radius: 16px; width: min(420px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow: auto;
+  background: var(--surface); color: var(--ink); box-shadow: 0 24px 60px rgba(7, 20, 40, .4) }
+.i-dlg::backdrop { background: rgba(7, 20, 40, .62) }
+.i-in { padding: 22px 20px 18px; display: flex; flex-direction: column; gap: 14px }
+.i-cab { display: flex; align-items: center; gap: 14px }
+.i-cab img { width: 56px; height: 56px; border-radius: 14px; flex: none }
+.i-cab h2 { margin: 0; font-family: var(--f-display); font-size: 24px; line-height: 1.15; color: var(--ink) }
+.i-cab p { margin: 2px 0 0; font-size: 13px; color: var(--ink-2) }
+.i-in > p { margin: 0; font-size: 15px; line-height: 1.45; color: var(--ink-2) }
+.i-passos { margin: 0; padding: 12px 14px 12px 34px; display: flex; flex-direction: column; gap: 8px; font-size: 15px; line-height: 1.4; background: var(--surface-2); border-radius: var(--r-sm) }
+.i-in > p.i-nota { font-size: 13px; color: var(--ink-3) }
+@media print { .b-instalar, .i-dlg { display: none !important } }
 .barra[hidden] { display: none }
 .barra { position: fixed; left: 0; right: 0; bottom: 0; z-index: 55; background: var(--surface); border-top: 1px solid var(--line); box-shadow: 0 -6px 18px rgba(10, 34, 64, .12);
   display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 10px max(16px, env(safe-area-inset-right, 0px)) calc(10px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)) }
@@ -430,7 +451,7 @@ body:not(.ready) > .top, body:not(.ready) > .layout { display: none }
 <div id="toast" role="status" aria-live="polite"></div>
 <div id="print-root"></div>
 <div id="barra" class="barra" hidden></div>
-<script type="application/json" id="cel-config">{"versao": "1.2.0", "ano": "2026/2027", "chaveId": "1987a8c7", "verificador": "2pczfA1bRiw+NHTrDgEcP8SuxUdvl8BRG1acf4d31JXP9Vr+n7o=", "dados": "dados.2460e27fab.bin", "contactos": {"whatsapp": "245955252417", "email": "cel.vf.gb@gmail.com"}, "diasSemLigacao": 30}</script>
+<script type="application/json" id="cel-config">{"versao": "1.2.1", "ano": "2026/2027", "chaveId": "1987a8c7", "verificador": "m+HQwwNueX1G3XlMCpRsYJOV0Tkds6FCJhmeHgobCN6OFobxkzA=", "dados": "dados.2460e27fab.bin", "contactos": {"whatsapp": "245955252417", "email": "cel.vf.gb@gmail.com"}, "diasSemLigacao": 30}</script>
 <script>/* Gerador mínimo de .docx (Word) no navegador — sem bibliotecas externas.
    Blocos: {t:'h', text, level} · {t:'p', text|runs, align, size, before, after, keep, border}
            {t:'list', items:[text|runs], ordered} · {t:'table', rows, widths, header, borders, minH}
@@ -2563,8 +2584,8 @@ function shell(...kids) {
   document.body.classList.remove('ready'); gate.hidden = false;
   gate.replaceChildren(
     h('div', { class: 'g-top' }, h('img', { src: 'icons/emblema.jpg', alt: 'Emblema do Centro Educativo Líder', width: '68', height: '44' }),
-      h('div', null, h('b', null, 'Recursos do Professor'), h('span', null, 'Centro Educativo Líder — Visão do Futuro'))),
-    h('main', { class: 'g-main' }, ...kids, caixaInstalar()));
+      h('div', null, h('b', null, 'Recursos do Professor'), h('span', null, 'Centro Educativo Líder — Visão do Futuro')), botaoInstalar()),
+    h('main', { class: 'g-main' }, ...kids));
   window.scrollTo(0, 0);
 }
 const passos = (n) => h('ol', { class: 'g-steps', 'aria-label': 'Passos' }, ['Os seus dados', 'Pedir o código', 'Ativar'].map((t, i) => h('li', { class: i + 1 === n ? 'on' : i + 1 < n ? 'ok' : null, 'aria-current': i + 1 === n ? 'step' : null }, h('span', null, String(i + 1)), t)));
@@ -2750,16 +2771,73 @@ async function verificarAgora() {
   else if (r === 'ok') toast(reg && reg.waiting ? 'Há uma versão nova: toque em «Atualizar» em baixo.' : 'Está tudo em dia.');
 }
 
-/* ---------- instalar no ecrã e atualizar */
-const instalada = () => (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
-function caixaInstalar() {
-  if (instalada()) return null;
-  return h('div', { class: 'g-install' }, h('b', null, 'Instalar no ecrã do telemóvel'),
-    h('p', null, 'Assim a aplicação abre como as outras, mesmo sem internet.'),
-    installEvt ? btn('Instalar', { kind: 'primary', icon: 'dl', onclick: instalar })
-      : h('p', { class: 'tiny' }, 'No Chrome, toque em ⋮ (em cima, à direita) e depois em «Instalar aplicação» ou «Adicionar ao ecrã principal».'));
+/* ---------- instalar no ecrã do telemóvel
+   Na primeira vez que a página abre fora da aplicação instalada, pede para instalar. Se a pessoa recusar, o botão «Instalar»
+   fica no cimo da página (antes e depois de ativar) e só desaparece quando a aplicação estiver instalada. */
+const KI = { pedido: 'cel-rp-pedido-instalar', instalada: 'cel-rp-instalada' };
+const emApp = () => (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+// aberta pelo ícone, ou já instalada neste telemóvel (o Chrome só avisa «beforeinstallprompt» quando ainda não está)
+const instalada = () => emApp() || LS.get(KI.instalada, false) === true;
+const iOS = /iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+let dlg = null;
+function botaoInstalar() {
+  return h('button', { type: 'button', class: 'b-instalar', hidden: instalada(), 'aria-haspopup': 'dialog', onclick: pedirInstalar }, icon('dl'), 'Instalar');
 }
-async function instalar() { if (!installEvt) return; installEvt.prompt(); try { await installEvt.userChoice; } catch (e) { /* nada */ } installEvt = null; barra(); }
+function pintaInstalar() {
+  const inst = instalada();
+  document.querySelectorAll('.b-instalar').forEach((b) => { b.hidden = inst; });
+  if (dlg && dlg.open) { if (inst) dlg.close(); else conteudoDialogo(); }
+}
+function conteudoDialogo() {
+  const manual = iOS
+    ? ['Toque em Partilhar (o quadrado com a seta para cima), em baixo no Safari.', 'Toque em «Adicionar ao ecrã principal» e depois em «Adicionar».']
+    : ['No Chrome, toque em ⋮ (em cima, à direita).', 'Toque em «Instalar app» ou em «Adicionar ao ecrã principal» e depois em «Instalar».'];
+  dlg.firstChild.replaceChildren(...[
+    h('div', { class: 'i-cab' }, h('img', { src: 'icons/icon-192.png', alt: '', width: '56', height: '56' }),
+      h('div', null, h('h2', { id: 'i-tit' }, 'Instalar no telemóvel'), h('p', null, 'Recursos do Professor'))),
+    h('p', null, 'Com a aplicação no ecrã do telemóvel, os manuais abrem com um toque, como as outras aplicações, mesmo sem internet.'),
+    installEvt ? null : h('ol', { class: 'i-passos' }, manual.map((t) => h('li', null, t))),
+    h('div', { class: 'g-actions' },
+      installEvt ? btn('Instalar', { kind: 'primary', icon: 'dl', onclick: () => { dlg.close(); pedirInstalar(); } }) : null,
+      btn(installEvt ? 'Agora não' : 'Fechar', { kind: installEvt ? 'ghost' : 'primary', onclick: () => dlg.close() })),
+    h('p', { class: 'i-nota' }, 'Se não instalar agora, o botão «Instalar» fica no cimo da página.')].filter(Boolean));
+}
+function abreDialogo() {
+  if (instalada()) { pintaInstalar(); return; }
+  if (!dlg) {
+    dlg = h('dialog', { class: 'i-dlg', 'aria-labelledby': 'i-tit' }, h('div', { class: 'i-in' }));
+    dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });   // tocar fora do quadro fecha
+    document.body.append(dlg);
+  }
+  conteudoDialogo();
+  if (!dlg.open) { try { dlg.showModal(); } catch (e) { dlg.setAttribute('open', ''); } }
+}
+async function pedirInstalar() {
+  if (instalada()) { pintaInstalar(); return; }
+  if (!installEvt) { abreDialogo(); return; }   // o Chrome ainda não deixa instalar com um toque: mostra o caminho pelo menu
+  const ev = installEvt; installEvt = null;     // cada pedido do Chrome só serve uma vez
+  try { ev.prompt(); await ev.userChoice; } catch (e) { /* nada */ }
+  pintaInstalar();                              // se recusou, o botão fica; se instalou, o «appinstalled» esconde-o
+}
+function talvezPedirInstalacao() {
+  if (!LS.ok || instalada() || LS.get(KI.pedido, false)) return;
+  setTimeout(() => {
+    if (instalada() || LS.get(KI.pedido, false)) return;
+    if (!gate.hidden && $('.g-lock', gate)) return;   // ecrã de bloqueio ou de erro: não é altura de pedir
+    LS.set(KI.pedido, new Date().toISOString());
+    abreDialogo();
+  }, 1500);
+}
+if (emApp()) LS.set(KI.instalada, true);
+LS.del('cel-rp-sem-instalar');   // o «Agora não» antigo escondia o aviso para sempre; agora o botão fica até instalar
+{ const topo = $('.top-in'); if (topo) topo.append(botaoInstalar()); }
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); installEvt = e; LS.del(KI.instalada); pintaInstalar(); });
+window.addEventListener('appinstalled', () => {
+  installEvt = null; LS.set(KI.instalada, true); pintaInstalar();
+  toast('Aplicação instalada. Abra-a pelo ícone «Professor CEL» no ecrã do telemóvel.');
+});
+
+/* ---------- atualizar */
 let novaVersao = null;
 function barra() {
   const b = $('#barra'); if (!b) return;
@@ -2767,14 +2845,8 @@ function barra() {
   if (novaVersao) {
     b.hidden = false;
     b.replaceChildren(h('span', null, 'Há uma versão nova dos Recursos.'), btn('Atualizar', { kind: 'primary', icon: 'refresh', onclick: () => { pedidoAtualizar = true; novaVersao.postMessage('ATUALIZAR'); } }));
-  } else if (installEvt && !instalada() && !LS.get('cel-rp-sem-instalar', false)) {
-    b.hidden = false;
-    b.replaceChildren(h('span', null, 'Instale no ecrã do telemóvel para abrir sem internet.'), btn('Instalar', { kind: 'primary', icon: 'dl', onclick: instalar }),
-      btn('Agora não', { kind: 'ghost', onclick: () => { LS.set('cel-rp-sem-instalar', true); barra(); } }));
   } else b.hidden = true;
 }
-window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); installEvt = e; barra(); const box = $('.g-install'); if (box) box.replaceWith(caixaInstalar() || h('span')); });
-window.addEventListener('appinstalled', () => { installEvt = null; barra(); });
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
   navigator.serviceWorker.register('sw.js').then((reg) => {
     window.__celReg = reg;
@@ -2807,6 +2879,7 @@ async function inicio() {
   if (await abrirApp(act)) consulta();
 }
 inicio();
+talvezPedirInstalacao();
 })();
 </script>
 </body>

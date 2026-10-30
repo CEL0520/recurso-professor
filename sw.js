@@ -1,5 +1,5 @@
 /* Recursos do Professor CEL — guarda a aplicação no telemóvel para funcionar sem internet. */
-const VERSAO = '1.2.0-2e07ce98';
+const VERSAO = '1.2.1-2d9bb495';
 const CACHE = 'cel-rp-' + VERSAO;
 const FICHEIROS = ["./", "./index.html", "./manifest.webmanifest", "./dados.2460e27fab.bin", "./fonts/Lora-Bold.woff", "./fonts/Figtree.woff", "./fonts/IBMPlexMono-Regular.woff", "./fonts/IBMPlexMono-Medium.woff", "./icons/icon-192.png", "./icons/icon-512.png", "./icons/maskable-512.png", "./icons/emblema.jpg"];
 const BASE = new URL('./', self.location).pathname;
