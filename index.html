@@ -89,11 +89,22 @@ fieldset input[type=text], fieldset textarea { width: 100% }
 .mark { flex: none; width: 10px; height: 22px; background: var(--line-2); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 74%, 0 100%); transition: background .18s, transform .18s }
 .nav button[aria-current="page"] .mark { background: var(--amber); transform: translateY(-2px) }
 .nav-foot { border-top: 1px dashed var(--line); margin-top: 6px; padding: 9px 10px 4px; font-size: 12px; color: var(--ink-3) }
+/* Portal CEL: a passagem para a gestão escolar */
+.nav-amb { display: flex; align-items: center; gap: 10px; margin-top: 6px; padding: 10px; border-top: 1px dashed var(--line); color: var(--ink-2); text-decoration: none; border-radius: 0 0 var(--r-sm) var(--r-sm) }
+.nav-amb:hover { background: var(--surface-2); color: var(--ink) }
+.nav-amb svg { flex: none; width: 20px; height: 20px; color: var(--amber) }
+.nav-amb span { display: flex; flex-direction: column; line-height: 1.25; min-width: 0 }
+.nav-amb b { font-weight: 600; font-size: 14px }
+.nav-amb small { font-size: 11.5px; color: var(--ink-3) }
+.nav-amb + .nav-foot { margin-top: 0 }
 @media (max-width: 920px) {
   .layout { grid-template-columns: minmax(0, 1fr); gap: 14px; padding-block: 12px 48px }
   .nav { position: static; display: flex; gap: 4px; overflow-x: auto; padding: 6px; scrollbar-width: thin }
   .nav button { width: auto; white-space: nowrap; padding: 8px 10px }
   .nav-label, .nav-foot { display: none }
+  .nav-amb { flex: none; margin: 0 0 0 4px; padding: 8px 12px; border-top: 0; border-left: 1px dashed var(--line); border-radius: 0; white-space: nowrap; gap: 7px }
+  .nav-amb small { display: none }
+  .nav-amb svg { width: 18px; height: 18px }
   .brand span { display: none }
 }
 main { min-width: 0 }
@@ -462,7 +473,7 @@ body:not(.ready) > .top, body:not(.ready) > .layout { display: none }
 <div id="toast" role="status" aria-live="polite"></div>
 <div id="print-root"></div>
 <div id="barra" class="barra" hidden></div>
-<script type="application/json" id="cel-config">{"versao": "1.3.0", "ano": "2026/2027", "chaveId": "1987a8c7", "verificador": "m+HQwwNueX1G3XlMCpRsYJOV0Tkds6FCJhmeHgobCN6OFobxkzA=", "dados": "dados.2460e27fab.bin", "contactos": {"whatsapp": "245955252417", "email": "cel.vf.gb@gmail.com"}, "diasSemLigacao": 30}</script>
+<script type="application/json" id="cel-config">{"versao": "1.3.1", "ano": "2026/2027", "chaveId": "1987a8c7", "verificador": "m+HQwwNueX1G3XlMCpRsYJOV0Tkds6FCJhmeHgobCN6OFobxkzA=", "dados": "dados.2460e27fab.bin", "contactos": {"whatsapp": "245955252417", "email": "cel.vf.gb@gmail.com"}, "diasSemLigacao": 30}</script>
 <script>/* Gerador mínimo de .docx (Word) no navegador — sem bibliotecas externas.
    Blocos: {t:'h', text, level} · {t:'p', text|runs, align, size, before, after, keep, border}
            {t:'list', items:[text|runs], ordered} · {t:'table', rows, widths, header, borders, minH}
@@ -698,7 +709,8 @@ const ICONS = {
   book: '<path d="M4 4h7a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H4z"/><path d="M20 4h-4a2 2 0 0 0-2 2"/><path d="M20 4v14h-6"/>',
   eye: '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>',
   search: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>', cal: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
-  pen: '<path d="M4 20l4-1 11-11-3-3L5 16z"/>'
+  pen: '<path d="M4 20l4-1 11-11-3-3L5 16z"/>',
+  pasta: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18"/>'
 };
 function icon(n) {
   const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -1024,10 +1036,10 @@ function clearArg(v) { try { history.replaceState(null, '', '#' + v); } catch (e
 function buildNav() {
   const nav = $('#nav'); nav.replaceChildren(h('div', { class: 'nav-label' }, 'Caderno do professor'));
   VIEWS.forEach(v => nav.append(h('button', { type: 'button', 'data-v': v.id, onclick: () => go(v.id) }, h('span', { class: 'mark', 'aria-hidden': 'true' }), v.label)));
-  // Portal CEL: quem também trabalha na gestão escolar neste aparelho passa de um ambiente para o outro por aqui
-  const gestao = (() => { try { return !!localStorage.getItem('portal-sessao'); } catch (e) { return false; } })();
-  nav.append(h('div', { class: 'nav-foot' }, PWA && PWA.versao ? `Portal CEL ${PWA.versao}` : `Versão ${C.versao} · ${C.data}`,
-    gestao ? [' · ', h('a', { href: 'gestao.html' }, 'Gestão escolar')] : null));
+  // Portal CEL: o outro ambiente, sempre à vista (no computador e no telemóvel), para quem é também da direção, da secretaria ou das finanças
+  nav.append(h('a', { class: 'nav-amb', href: 'gestao.html', title: 'Gestão escolar: para a direção, a secretaria e as finanças' }, icon('pasta'),
+    h('span', null, h('b', null, 'Gestão escolar'), h('small', null, 'Direção, secretaria e finanças'))));
+  nav.append(h('div', { class: 'nav-foot' }, PWA && PWA.versao ? `Portal CEL ${PWA.versao}` : `Versão ${C.versao} · ${C.data}`));
 }
 let cleanup = null, lastView = null;
 function render() {
@@ -2028,7 +2040,7 @@ function toolRomanos() {
 /* ============================================================ CÓPIAS E ATUALIZAÇÕES */
 const NOVIDADES = [
   { v: '1.3', d: '13/11/2026', itens: ['A aplicação passa a chamar-se Portal CEL. Para os professores fica tudo igual: o mesmo código, os mesmos manuais e ferramentas.',
-    'No mesmo Portal, a direção, a secretaria e as finanças entram na gestão escolar com a sua conta, cada uma só no seu ambiente.'] },
+    'No mesmo Portal, a direção, a secretaria e as finanças entram na gestão escolar com a sua conta, cada uma só no seu ambiente. No menu, «Gestão escolar» leva até lá.'] },
   { v: '1.2', d: '24/10/2026', itens: ['Formações: as formações feitas no CEL, com os manuais que os formadores disponibilizam. Cada manual descarrega-se uma vez, com internet, e depois abre sem internet.'] },
   { v: '1.1', d: '23/10/2026', itens: ['Calendário de atividades 2026/2027, com as próximas atividades no Início e avisos no telemóvel quando uma atividade se aproxima.',
     'Documentos do CEL: Estatuto, Regulamento Interno, Código de Ética e Conduta Profissional e Plano de Qualidade Institucional, com pesquisa.'] },
