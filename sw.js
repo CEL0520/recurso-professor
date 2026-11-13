@@ -1,7 +1,9 @@
-/* Recursos do Professor CEL — guarda a aplicação no telemóvel para funcionar sem internet. */
-const VERSAO = '1.2.1-2d9bb495';
+/* Portal CEL — guarda a aplicação no telemóvel para funcionar sem internet.
+   Os Recursos do Professor ficam guardados para todos; a gestão escolar (gestao.html) só nos aparelhos de quem a abre. */
+const VERSAO = '1.3.0-826e3254';
 const CACHE = 'cel-rp-' + VERSAO;
 const FICHEIROS = ["./", "./index.html", "./manifest.webmanifest", "./dados.2460e27fab.bin", "./fonts/Lora-Bold.woff", "./fonts/Figtree.woff", "./fonts/IBMPlexMono-Regular.woff", "./fonts/IBMPlexMono-Medium.woff", "./icons/icon-192.png", "./icons/icon-512.png", "./icons/maskable-512.png", "./icons/emblema.jpg"];
+const GEST = 'cel-portal-g-' + VERSAO;     // gestão escolar: só existe nos aparelhos de quem a usa
 const BASE = new URL('./', self.location).pathname;
 const FIXO = /\/(dados\.[0-9a-f]+\.bin|fonts\/[^/]+)$/;   // ficheiros que nunca mudam com o mesmo nome
 self.addEventListener('install', (e) => {
@@ -15,10 +17,17 @@ self.addEventListener('install', (e) => {
     }
     // sempre da internet, sem a cache do navegador: uma página antiga com manuais novos (ou o contrário) não abria
     await c.addAll(falta.map((f) => new Request(f, { cache: 'reload' })));
+    // gestão escolar: se este aparelho já a tinha, traz a versão nova (sem internet, fica a anterior, para continuar a abrir)
+    const gv = (await caches.keys()).filter((k) => k.startsWith('cel-portal-g-') && k !== GEST);
+    if (gv.length) {
+      const g = await caches.open(GEST);
+      try { const r = await fetch('./gestao.html', { cache: 'reload' }); if (!r.ok) throw new Error(String(r.status)); await g.put('./gestao.html', r); }
+      catch (x) { for (const k of gv) { const r = await caches.match('./gestao.html', { cacheName: k }); if (r) { await g.put('./gestao.html', r); break; } } }
+    }
   })());
 });
 self.addEventListener('activate', (e) => {
-  e.waitUntil(caches.keys().then((ks) => Promise.all(ks.filter((k) => k.startsWith('cel-rp-') && k !== CACHE).map((k) => caches.delete(k)))).then(() => self.clients.claim()));
+  e.waitUntil(caches.keys().then((ks) => Promise.all(ks.filter((k) => (k.startsWith('cel-rp-') && k !== CACHE) || (k.startsWith('cel-portal-g-') && k !== GEST)).map((k) => caches.delete(k)))).then(() => self.clients.claim()));
 });
 self.addEventListener('message', (e) => {
   if (e.data === 'ATUALIZAR') self.skipWaiting();
@@ -77,6 +86,13 @@ self.addEventListener('fetch', (e) => {
   if (url.origin !== self.location.origin) return;
   if (url.pathname.endsWith('/acessos.json')) return;            // a lista de acessos vem sempre da internet
   if (url.pathname.includes('/formacoes/')) return;              // as formações: a aplicação guarda-as à parte, quando as descarrega
+  if (url.pathname === BASE + 'gestao.html') {                  // a gestão: do aparelho; da internet só da primeira vez
+    e.respondWith((async () => {
+      const g = await caches.open(GEST), r = await g.match('./gestao.html');
+      if (r) return r;
+      const n = await fetch(req); if (n.ok) await g.put('./gestao.html', n.clone()); return n;
+    })()); return;
+  }
   if (req.mode === 'navigate') {
     if (url.pathname !== BASE && url.pathname !== BASE + 'index.html') return;   // outras páginas (por exemplo, a área da coordenação) vêm da internet
     e.respondWith(caches.match('./index.html', { cacheName: CACHE }).then((r) => r || fetch(req))); return;

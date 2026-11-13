@@ -576,7 +576,7 @@ function resposta(e) {
 const respostaSMS = (e) => `CEL: o seu codigo de acesso e ${C.grupos(e.codigo)} (valido ate ${dataPT(e.validade)}, so no seu telemovel).`;
 function conviteBase() {
   return `Bom dia, colega!\nOs Recursos do Professor do CEL já estão no telemóvel: manuais com respostas, planos de aula, provas e gabaritos.\n\n` +
-    `1. Abra este endereço no Chrome, com internet: ${def.url || '[endereço da aplicação]'}\n2. Toque em «Instalar» (ou no menu ⋮ e em «Instalar aplicação»).\n3. Preencha os seus dados e peça o código por WhatsApp.\n4. Quando receber o código, cole-o na aplicação.\n\n` +
+    `1. Abra este endereço no Chrome, com internet: ${def.url || '[endereço da aplicação]'}\n2. Toque em «Instalar» (ou no menu ⋮ e em «Instalar aplicação»).\n3. Toque em «Professor(a)», preencha os seus dados e peça o código por WhatsApp.\n4. Quando receber o código, cole-o na aplicação.\n\n` +
     `Depois funciona sem internet. O código é pessoal e só funciona no seu telemóvel.\nCoordenação do CEL`;
 }
 function botoesEnvio(e) {

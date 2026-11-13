@@ -1,7 +1,7 @@
 {
- "name": "Recursos do Professor — CEL",
- "short_name": "Professor CEL",
- "description": "Manuais do CEL, planos de aula, provas e gabaritos.",
+ "name": "Portal CEL — Centro Educativo Líder",
+ "short_name": "Portal CEL",
+ "description": "Recursos do Professor e gestão escolar do Centro Educativo Líder — Visão do Futuro.",
  "lang": "pt-PT",
  "dir": "ltr",
  "start_url": "./",

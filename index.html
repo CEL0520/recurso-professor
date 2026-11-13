@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0A2240">
-<meta name="description" content="Manuais do CEL, planos de aula, provas e gabaritos para os professores.">
+<meta name="description" content="Portal CEL: Recursos do Professor e gestão escolar do Centro Educativo Líder — Visão do Futuro.">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
-<title>Recursos do Professor CEL</title>
+<title>Portal CEL</title>
 <style>@font-face{font-family:'Lora';font-weight:700;font-style:normal;font-display:swap;src:url(fonts/Lora-Bold.woff) format('woff')}@font-face{font-family:'Figtree';font-weight:300 900;font-style:normal;font-display:swap;src:url(fonts/Figtree.woff) format('woff')}@font-face{font-family:'Plex Mono';font-weight:400;font-style:normal;font-display:swap;src:url(fonts/IBMPlexMono-Regular.woff) format('woff')}@font-face{font-family:'Plex Mono';font-weight:500;font-style:normal;font-display:swap;src:url(fonts/IBMPlexMono-Medium.woff) format('woff')}
 /* Conceito: o caderno do professor do CEL — papel quadriculado da escola, marcadores de livro na navegação,
    azul-marinho e dourado do CEL com as cores da bandeira; planos e provas aparecem como folhas A4 sobre a mesa. */
@@ -442,6 +442,17 @@ body:not(.ready) > .top, body:not(.ready) > .layout { display: none }
 .barra { position: fixed; left: 0; right: 0; bottom: 0; z-index: 55; background: var(--surface); border-top: 1px solid var(--line); box-shadow: 0 -6px 18px rgba(10, 34, 64, .12);
   display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 10px max(16px, env(safe-area-inset-right, 0px)) calc(10px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)) }
 .barra span { flex: 1 1 200px; font-size: 14px; font-weight: 600 }
+
+/* Portal CEL: escolha do ambiente */
+.g-escolha { display: flex; flex-direction: column; gap: 10px }
+.g-op { display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; padding: 16px; border: 1.5px solid var(--line); border-radius: var(--r);
+  background: var(--surface); color: var(--ink); font: inherit; cursor: pointer; box-shadow: var(--shadow) }
+.g-op:hover, .g-op:focus-visible { border-color: var(--amber) }
+.g-op:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px }
+.g-op-ic { width: 46px; height: 46px; border-radius: 50%; background: var(--amber-soft); color: var(--ink); display: grid; place-items: center; flex: none }
+.g-op-ic svg { width: 24px; height: 24px }
+.g-op b { display: block; font-size: 17px; line-height: 1.25 }
+.g-op small { display: block; color: var(--ink-2); font-size: 13.5px; line-height: 1.35; margin-top: 3px }
 </style>
 </head>
 <body>
@@ -451,7 +462,7 @@ body:not(.ready) > .top, body:not(.ready) > .layout { display: none }
 <div id="toast" role="status" aria-live="polite"></div>
 <div id="print-root"></div>
 <div id="barra" class="barra" hidden></div>
-<script type="application/json" id="cel-config">{"versao": "1.2.1", "ano": "2026/2027", "chaveId": "1987a8c7", "verificador": "m+HQwwNueX1G3XlMCpRsYJOV0Tkds6FCJhmeHgobCN6OFobxkzA=", "dados": "dados.2460e27fab.bin", "contactos": {"whatsapp": "245955252417", "email": "cel.vf.gb@gmail.com"}, "diasSemLigacao": 30}</script>
+<script type="application/json" id="cel-config">{"versao": "1.3.0", "ano": "2026/2027", "chaveId": "1987a8c7", "verificador": "m+HQwwNueX1G3XlMCpRsYJOV0Tkds6FCJhmeHgobCN6OFobxkzA=", "dados": "dados.2460e27fab.bin", "contactos": {"whatsapp": "245955252417", "email": "cel.vf.gb@gmail.com"}, "diasSemLigacao": 30}</script>
 <script>/* Gerador mínimo de .docx (Word) no navegador — sem bibliotecas externas.
    Blocos: {t:'h', text, level} · {t:'p', text|runs, align, size, before, after, keep, border}
            {t:'list', items:[text|runs], ordered} · {t:'table', rows, widths, header, borders, minH}
@@ -1013,7 +1024,10 @@ function clearArg(v) { try { history.replaceState(null, '', '#' + v); } catch (e
 function buildNav() {
   const nav = $('#nav'); nav.replaceChildren(h('div', { class: 'nav-label' }, 'Caderno do professor'));
   VIEWS.forEach(v => nav.append(h('button', { type: 'button', 'data-v': v.id, onclick: () => go(v.id) }, h('span', { class: 'mark', 'aria-hidden': 'true' }), v.label)));
-  nav.append(h('div', { class: 'nav-foot' }, PWA && PWA.versao ? `Versão ${PWA.versao}` : `Versão ${C.versao} · ${C.data}`));
+  // Portal CEL: quem também trabalha na gestão escolar neste aparelho passa de um ambiente para o outro por aqui
+  const gestao = (() => { try { return !!localStorage.getItem('portal-sessao'); } catch (e) { return false; } })();
+  nav.append(h('div', { class: 'nav-foot' }, PWA && PWA.versao ? `Portal CEL ${PWA.versao}` : `Versão ${C.versao} · ${C.data}`,
+    gestao ? [' · ', h('a', { href: 'gestao.html' }, 'Gestão escolar')] : null));
 }
 let cleanup = null, lastView = null;
 function render() {
@@ -2013,6 +2027,8 @@ function toolRomanos() {
 
 /* ============================================================ CÓPIAS E ATUALIZAÇÕES */
 const NOVIDADES = [
+  { v: '1.3', d: '13/11/2026', itens: ['A aplicação passa a chamar-se Portal CEL. Para os professores fica tudo igual: o mesmo código, os mesmos manuais e ferramentas.',
+    'No mesmo Portal, a direção, a secretaria e as finanças entram na gestão escolar com a sua conta, cada uma só no seu ambiente.'] },
   { v: '1.2', d: '24/10/2026', itens: ['Formações: as formações feitas no CEL, com os manuais que os formadores disponibilizam. Cada manual descarrega-se uma vez, com internet, e depois abre sem internet.'] },
   { v: '1.1', d: '23/10/2026', itens: ['Calendário de atividades 2026/2027, com as próximas atividades no Início e avisos no telemóvel quando uma atividade se aproxima.',
     'Documentos do CEL: Estatuto, Regulamento Interno, Código de Ética e Conduta Profissional e Plano de Qualidade Institucional, com pesquisa.'] },
@@ -2552,7 +2568,9 @@ const ICON = {
   lock: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
   paste: '<rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4h6v3H9z"/>',
   dl: '<path d="M12 3v12M7 10l5 5 5-5M5 21h14"/>', wifi: '<path d="M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M12 19.5h.01"/>',
-  refresh: '<path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/>'
+  refresh: '<path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/>',
+  livro: '<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/>',
+  pasta: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18"/>'
 };
 function icon(n) { const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); for (const [k, v] of Object.entries({ viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '1.8', 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'aria-hidden': 'true' })) s.setAttribute(k, v); s.innerHTML = ICON[n] || ''; return s; }
 const btn = (label, o = {}) => h('button', { type: 'button', class: 'btn ' + (o.kind || ''), onclick: o.onclick, disabled: o.disabled }, o.icon ? icon(o.icon) : null, label);
@@ -2563,6 +2581,8 @@ const LS = {
   del(k) { try { localStorage.removeItem(k); } catch (e) { /* nada */ } }
 };
 const K = { aparelho: 'cel-rp-aparelho', pedidos: 'cel-rp-pedidos', ativ: 'cel-rp-ativacao', verif: 'cel-rp-verificado', dia: 'cel-rp-ultimo-dia', estado: 'cel-rp-estado', consulta: 'cel-rp-ultima-consulta' };
+// Portal CEL: quem escolheu ser professor(a) neste aparelho, e a sessão da gestão escolar (direção, secretaria, finanças)
+const KP = { escolha: 'cel-portal-escolha', gestao: 'portal-sessao' };
 const gate = $('#gate');
 let installEvt = null, booted = false, pedidoAtualizar = false;
 
@@ -2650,7 +2670,20 @@ function telaRegisto(pre = null, aviso = null) {
       const p = dados(), erros = valida(p);
       if (erros.length) { err.replaceChildren(h('div', null, 'Preencha primeiro os seus dados, iguais aos do pedido.'), ...erros.map(x => h('div', null, x))); return; }
       guardaPedido(p, 'manual'); telaAtivar();
-    } })));
+    } })),
+    h('div', { class: 'g-links' }, btn('É da direção, da secretaria ou das finanças?', { kind: 'ghost', icon: 'pasta', onclick: () => { LS.del(KP.escolha); location.href = 'gestao.html'; } })));
+}
+
+/* Portal CEL: a primeira escolha, para quem ainda não usa nenhum dos ambientes neste aparelho */
+function telaEntrada() {
+  const op = (ic, t, d, f) => h('button', { type: 'button', class: 'g-op', onclick: f }, h('span', { class: 'g-op-ic', 'aria-hidden': 'true' }, icon(ic)), h('span', null, h('b', null, t), h('small', null, d)));
+  shell(
+    h('h1', null, 'Portal CEL'),
+    h('p', { class: 'muted' }, 'O Portal reúne os Recursos do Professor e a gestão escolar do CEL. Escolha o seu ambiente.'),
+    h('div', { class: 'g-escolha' },
+      op('livro', 'Professor(a)', 'Manuais, planos de aula, provas, calendário e formações', () => { LS.set(KP.escolha, 'prof'); telaRegisto(); }),
+      op('pasta', 'Direção, secretaria e finanças', 'Gestão escolar: matrículas, recibos, pessoal e documentos', () => { location.href = 'gestao.html'; })));
+  const b = $('.g-top b'); if (b) b.textContent = 'Portal CEL';
 }
 
 function telaAtivar(msgErro = '') {
@@ -2794,7 +2827,7 @@ function conteudoDialogo() {
     : ['No Chrome, toque em ⋮ (em cima, à direita).', 'Toque em «Instalar app» ou em «Adicionar ao ecrã principal» e depois em «Instalar».'];
   dlg.firstChild.replaceChildren(...[
     h('div', { class: 'i-cab' }, h('img', { src: 'icons/icon-192.png', alt: '', width: '56', height: '56' }),
-      h('div', null, h('h2', { id: 'i-tit' }, 'Instalar no telemóvel'), h('p', null, 'Recursos do Professor'))),
+      h('div', null, h('h2', { id: 'i-tit' }, 'Instalar no telemóvel'), h('p', null, 'Portal CEL'))),
     h('p', null, 'Com a aplicação no ecrã do telemóvel, os manuais abrem com um toque, como as outras aplicações, mesmo sem internet.'),
     installEvt ? null : h('ol', { class: 'i-passos' }, manual.map((t) => h('li', null, t))),
     h('div', { class: 'g-actions' },
@@ -2834,7 +2867,7 @@ LS.del('cel-rp-sem-instalar');   // o «Agora não» antigo escondia o aviso par
 window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); installEvt = e; LS.del(KI.instalada); pintaInstalar(); });
 window.addEventListener('appinstalled', () => {
   installEvt = null; LS.set(KI.instalada, true); pintaInstalar();
-  toast('Aplicação instalada. Abra-a pelo ícone «Professor CEL» no ecrã do telemóvel.');
+  toast('Aplicação instalada. Abra-a pelo ícone «Portal CEL» no ecrã do telemóvel.');
 });
 
 /* ---------- atualizar */
@@ -2844,7 +2877,7 @@ function barra() {
   if (!document.body.classList.contains('ready')) { b.hidden = true; return; }
   if (novaVersao) {
     b.hidden = false;
-    b.replaceChildren(h('span', null, 'Há uma versão nova dos Recursos.'), btn('Atualizar', { kind: 'primary', icon: 'refresh', onclick: () => { pedidoAtualizar = true; novaVersao.postMessage('ATUALIZAR'); } }));
+    b.replaceChildren(h('span', null, 'Há uma versão nova do Portal CEL.'), btn('Atualizar', { kind: 'primary', icon: 'refresh', onclick: () => { pedidoAtualizar = true; novaVersao.postMessage('ATUALIZAR'); } }));
   } else b.hidden = true;
 }
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
@@ -2870,7 +2903,10 @@ async function inicio() {
   const dia = hoje(), act = LS.get(K.ativ, null), estado = LS.get(K.estado, null);
   if (!act) {
     if (estado === 'retirado') { telaBloqueio('retirado'); return; }
-    if (pedidosDoAparelho().length) telaAtivar(); else telaRegisto();
+    if (pedidosDoAparelho().length) { telaAtivar(); return; }
+    const prof = /[?&]professor\b/.test(location.search) || LS.get(KP.escolha, '') === 'prof';
+    if (!prof && LS.get(KP.gestao, null)) { location.replace('gestao.html'); return; }   // aparelho da direção ou da secretaria
+    if (prof) telaRegisto(); else telaEntrada();
     return;
   }
   if (estado === 'suspenso') { telaBloqueio('suspenso'); if ((await consulta()) === 'ok') inicio(); return; }
