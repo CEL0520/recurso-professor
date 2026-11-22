@@ -1,25 +1,19 @@
-/* Códigos CEL — área da coordenação: guarda a página neste aparelho para abrir sem internet. */
-const VERSAO = '1.3.0-e3ef3c3c';
-const CACHE = 'cel-coord-' + VERSAO;
-const FICHEIROS = ["./index.html", "./manifest.webmanifest", "./icons/coord-192.png", "./icons/coord-512.png", "./icons/coord-maskable-512.png"];
-self.addEventListener('install', (e) => { self.skipWaiting(); e.waitUntil(caches.open(CACHE).then((c) => c.addAll(FICHEIROS.map((f) => new Request(f, { cache: 'reload' })))));  });
-self.addEventListener('activate', (e) => {
-  e.waitUntil(caches.keys().then((ks) => Promise.all(ks.filter((k) => k.startsWith('cel-coord-') && k !== CACHE).map((k) => caches.delete(k)))).then(() => self.clients.claim()));
-});
-// Uma versão antiga da aplicação dos professores pode abrir-se neste endereço e pedir «Atualizar»: recarrega para mostrar a área da coordenação.
-self.addEventListener('message', (e) => {
-  if (e.data !== 'ATUALIZAR') return;
-  self.skipWaiting();
-  const c = e.source;
-  if (c && c.type === 'window' && typeof c.navigate === 'function' && !self.registration.waiting && !self.registration.installing) c.navigate(c.url).catch(() => {});
-});
+/* Portal CEL: este endereço (…/recurso-professor/) mudou para …/portal-cel/.
+   Este service worker substitui o antigo: apaga só o que era deste endereço, retira-se e leva as janelas abertas para o novo endereço. */
+const NOVO = (u) => u.replace(/\/recurso-professor(\/|$)/, '/portal-cel/');
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', (e) => e.waitUntil((async () => {
+  try {
+    for (const n of await caches.keys()) {
+      const c = await caches.open(n);
+      for (const r of await c.keys()) if (r.url.includes('/recurso-professor/')) await c.delete(r);
+    }
+  } catch (_) {}
+  await self.clients.claim();
+  const janelas = await self.clients.matchAll({ type: 'window' });
+  await self.registration.unregister();
+  for (const j of janelas) { try { await j.navigate(NOVO(j.url)); } catch (_) {} }
+})()));
 self.addEventListener('fetch', (e) => {
-  const req = e.request;
-  if (req.method !== 'GET') return;
-  const url = new URL(req.url);
-  if (url.origin !== self.location.origin) return;
-  if (url.pathname.endsWith('/acessos.json')) return;            // a lista publicada vem sempre da internet
-  if (url.pathname.includes('/formacoes/')) return;              // as formações publicadas também
-  if (req.mode === 'navigate') { e.respondWith(caches.match('./index.html', { cacheName: CACHE }).then((r) => r || fetch(req))); return; }
-  e.respondWith(caches.match(req, { ignoreSearch: true, cacheName: CACHE }).then((r) => r || fetch(req)));
+  if (e.request.mode === 'navigate') e.respondWith(Response.redirect(NOVO(e.request.url), 302));
 });

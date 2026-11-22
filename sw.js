@@ -1,117 +1,19 @@
-/* Portal CEL — guarda a aplicação no telemóvel para funcionar sem internet.
-   Os Recursos do Professor ficam guardados para todos; a gestão escolar (gestao.html) só nos aparelhos de quem a abre. */
-const VERSAO = '1.32.2-ace75c5c';
-const CACHE = 'cel-rp-' + VERSAO;
-const FICHEIROS = ["./", "./index.html", "./manifest.webmanifest", "./dados.26347696d7.bin", "./fonts/Lora-Bold.woff", "./fonts/Figtree.woff", "./fonts/IBMPlexMono-Regular.woff", "./fonts/IBMPlexMono-Medium.woff", "./fonts/cel-letra-serif-400.woff", "./fonts/cel-letra-serif-700.woff", "./fonts/cel-letra-manuscrita.woff", "./icons/icon-192.png", "./icons/icon-512.png", "./icons/maskable-512.png", "./icons/emblema.jpg"];
-const GEST = 'cel-portal-g-' + VERSAO;     // gestão escolar: só existe nos aparelhos de quem a usa
-const PDFJS = 'cel-pdfjs-4.10.38';         // leitor de PDF de «Abrir ficheiros» (só da primeira vez que se usa; fica entre versões)
-const LETRAS = 'cel-letras-1';              // tipos de letra de «Os meus documentos» (nunca mudam com o mesmo nome; ficam entre versões)
-const BASE = new URL('./', self.location).pathname;
-const FIXO = /\/(dados\.[0-9a-f]+\.bin|fonts\/[^/]+)$/;   // ficheiros que nunca mudam com o mesmo nome
-self.addEventListener('install', (e) => {
-  e.waitUntil((async () => {
-    // aproveita o que já está no telemóvel, para não gastar internet a descarregar outra vez
-    const c = await caches.open(CACHE), velhos = (await caches.keys()).filter((k) => k.startsWith('cel-rp-') && k !== CACHE), falta = [];
-    for (const f of FICHEIROS) {
-      let r = null;
-      if (FIXO.test(f)) for (const k of velhos) { r = await caches.match(f, { cacheName: k }); if (r) break; }
-      if (r) await c.put(f, r); else falta.push(f);
+/* Portal CEL: este endereço (…/recurso-professor/) mudou para …/portal-cel/.
+   Este service worker substitui o antigo: apaga só o que era deste endereço, retira-se e leva as janelas abertas para o novo endereço. */
+const NOVO = (u) => u.replace(/\/recurso-professor(\/|$)/, '/portal-cel/');
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', (e) => e.waitUntil((async () => {
+  try {
+    for (const n of await caches.keys()) {
+      const c = await caches.open(n);
+      for (const r of await c.keys()) if (r.url.includes('/recurso-professor/')) await c.delete(r);
     }
-    // sempre da internet, sem a cache do navegador: uma página antiga com manuais novos (ou o contrário) não abria
-    await c.addAll(falta.map((f) => new Request(f, { cache: 'reload' })));
-    // gestão escolar: se este aparelho já a tinha, traz a versão nova (sem internet, fica a anterior, para continuar a abrir)
-    const gv = (await caches.keys()).filter((k) => k.startsWith('cel-portal-g-') && k !== GEST);
-    if (gv.length) {
-      const g = await caches.open(GEST);
-      try { const r = await fetch('./gestao.html', { cache: 'reload' }); if (!r.ok) throw new Error(String(r.status)); await g.put('./gestao.html', r); }
-      catch (x) { for (const k of gv) { const r = await caches.match('./gestao.html', { cacheName: k }); if (r) { await g.put('./gestao.html', r); break; } } }
-    }
-  })());
-});
-self.addEventListener('activate', (e) => {
-  e.waitUntil(caches.keys().then((ks) => Promise.all(ks.filter((k) => (k.startsWith('cel-rp-') && k !== CACHE) || (k.startsWith('cel-portal-g-') && k !== GEST)).map((k) => caches.delete(k)))).then(() => self.clients.claim()));
-});
-self.addEventListener('message', (e) => {
-  if (e.data === 'ATUALIZAR') self.skipWaiting();
-  if (e.data === 'CEL-AVISAR') e.waitUntil(avisar());
-});
-
-/* Avisos do calendário: a aplicação guarda as atividades neste telemóvel; quando o telemóvel acorda a aplicação
-   (de tempos a tempos, com internet), avisa na véspera e no próprio dia de cada atividade. */
-function idb() {
-  return new Promise((res, rej) => { const r = indexedDB.open('cel-avisos', 1); r.onupgradeneeded = () => r.result.createObjectStore('kv'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
-}
-async function kv(k, v) {
-  const db = await idb();
-  return new Promise((res, rej) => {
-    const tx = db.transaction('kv', v === undefined ? 'readonly' : 'readwrite'), st = tx.objectStore('kv');
-    const q = v === undefined ? st.get(k) : st.put(v, k); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error);
-  });
-}
-const diaLocal = (d) => new Date(d.getTime() - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
-async function avisar() {
-  const cfg = await kv('cfg');
-  if (!cfg || !cfg.ativos || self.Notification === undefined || Notification.permission !== 'granted') return;
-  const ev = (await kv('eventos')) || [], feitos = (await kv('feitos')) || {};
-  const agora = new Date(), hoje = diaLocal(agora), amanha = diaLocal(new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() + 1));
-  for (const e of ev) {
-    if ((e.g === 'financeiro' && !cfg.fin) || (e.g === 'alusiva' && !cfg.alu)) continue;
-    for (const d of e.d) {
-      const q = d === hoje ? 'Hoje' : d === amanha ? 'Amanhã' : null;
-      if (!q) continue;
-      const k = `${e.id}|${d}|${q}`;
-      if (feitos[k]) continue;
-      await self.registration.showNotification(`${q}: ${e.t}`, { body: [e.cat, e.h].filter(Boolean).join(' · '), tag: k, icon: './icons/icon-192.png', data: { url: './#calendario' } });
-      feitos[k] = Date.now();
-    }
-  }
-  for (const k of Object.keys(feitos)) if (Date.now() - feitos[k] > 60 * 864e5) delete feitos[k];
-  await kv('feitos', feitos);
-}
-self.addEventListener('periodicsync', (e) => { if (e.tag === 'cel-avisos') e.waitUntil(avisar()); });
-self.addEventListener('notificationclick', (e) => {
-  e.notification.close();
-  e.waitUntil((async () => {
-    const url = new URL((e.notification.data && e.notification.data.url) || './', self.location).href;
-    const cs = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
-    for (const c of cs) {
-      const p = new URL(c.url).pathname;
-      if ((p === BASE || p === BASE + 'index.html') && 'focus' in c) { try { await c.navigate(url); } catch (x) { /* nada */ } return c.focus(); }
-    }
-    return self.clients.openWindow(url);
-  })());
-});
+  } catch (_) {}
+  await self.clients.claim();
+  const janelas = await self.clients.matchAll({ type: 'window' });
+  await self.registration.unregister();
+  for (const j of janelas) { try { await j.navigate(NOVO(j.url)); } catch (_) {} }
+})()));
 self.addEventListener('fetch', (e) => {
-  const req = e.request;
-  if (req.method !== 'GET') return;
-  const url = new URL(req.url);
-  if (url.origin !== self.location.origin) return;
-  if (url.pathname.endsWith('/acessos.json')) return;            // a lista de acessos vem sempre da internet
-  if (url.pathname.includes('/formacoes/')) return;              // as formações: a aplicação guarda-as à parte, quando as descarrega
-  if (url.pathname.startsWith(BASE + 'pdfjs/')) {
-    e.respondWith((async () => {
-      const c = await caches.open(PDFJS), r = await c.match(req, { ignoreSearch: true });
-      if (r) return r;
-      const n = await fetch(req); if (n.ok) await c.put(req, n.clone()); return n;
-    })()); return;
-  }
-  if (/\/fonts\/cel-letra-[^/]+\.woff$/.test(url.pathname)) {    // tipos de letra dos documentos: descarregados só da primeira vez que se usam
-    e.respondWith((async () => {
-      const c = await caches.open(LETRAS), r = await c.match(req, { ignoreSearch: true });
-      if (r) return r;
-      const n = await fetch(req); if (n.ok) await c.put(req, n.clone()); return n;
-    })()); return;
-  }
-  if (url.pathname === BASE + 'gestao.html') {                  // a gestão: do aparelho; da internet só da primeira vez
-    e.respondWith((async () => {
-      const g = await caches.open(GEST), r = await g.match('./gestao.html');
-      if (r) return r;
-      const n = await fetch(req); if (n.ok) await g.put('./gestao.html', n.clone()); return n;
-    })()); return;
-  }
-  if (req.mode === 'navigate') {
-    if (url.pathname !== BASE && url.pathname !== BASE + 'index.html') return;   // outras páginas (por exemplo, a área da coordenação) vêm da internet
-    e.respondWith(caches.match('./index.html', { cacheName: CACHE }).then((r) => r || fetch(req))); return;
-  }
-  e.respondWith(caches.match(req, { ignoreSearch: true, cacheName: CACHE }).then((r) => r || fetch(req)));
+  if (e.request.mode === 'navigate') e.respondWith(Response.redirect(NOVO(e.request.url), 302));
 });

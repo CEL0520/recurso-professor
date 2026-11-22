@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="pt"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Portal CEL — novo endereço</title><meta name="robots" content="noindex">
+<style>body{font-family:system-ui,Segoe UI,Arial,sans-serif;background:#f3f5f9;color:#16213a;margin:0;display:grid;place-items:center;min-height:100vh;padding:16px}main{background:#fff;border:1px solid #dde3ee;border-radius:14px;padding:22px;max-width:440px;text-align:center}a{display:inline-block;margin-top:12px;background:#1d4c8f;color:#fff;padding:10px 16px;border-radius:10px;text-decoration:none;font-weight:600}</style>
+<script>
+/* O Portal CEL mudou para cel0520.github.io/portal-cel/. Esta página leva para o mesmo sítio no novo endereço
+   (com a mesma pesquisa e o mesmo #), depois de retirar o service worker antigo. As contas e os dados do aparelho mantêm-se. */
+(function(){
+  var novo = location.pathname.replace(/\/recurso-professor(\/|$)/, '/portal-cel/') + location.search + location.hash;
+  var vai = function(){ location.replace(novo); };
+  try {
+    if ('serviceWorker' in navigator) {
+      var t = setTimeout(vai, 1500);
+      navigator.serviceWorker.getRegistrations().then(function(rs){
+        return Promise.all(rs.filter(function(r){ return r.scope.indexOf('/recurso-professor/') >= 0; }).map(function(r){ return r.unregister(); }));
+      }).then(function(){ clearTimeout(t); vai(); }, function(){ clearTimeout(t); vai(); });
+    } else vai();
+  } catch (e) { vai(); }
+})();
+</script></head>
+<body><main><h1 style="font-size:20px;margin:0 0 6px">O Portal CEL mudou de endereço</h1>
+<p>Novo endereço: <b>cel0520.github.io/portal-cel/</b><br>A sua conta e os seus dados continuam iguais.</p>
+<a href="https://cel0520.github.io/portal-cel/">Abrir o Portal CEL</a></main></body></html>
